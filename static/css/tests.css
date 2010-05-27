@@ -1,0 +1,197 @@
+body {
+	height: 100%;
+	position: absolute;
+	top: 0px; left: 0px; right: 0px; bottom: 0px;
+	font-family: "Lucida Grande", "Lucida Sans Unicode", "Trebuchet MS", Helvetica, Arial, sans-serif;
+	margin: 0px;
+	padding: 0px;
+	font-size: 12px;
+}
+a {
+	cursor: pointer;
+	color:#009;
+}
+
+/* button basics from github */
+a.minibutton {
+	outline: none;
+	display:inline-block;
+	height:23px;
+	padding:0 0 0 3px;
+	font-size:11px;
+	font-weight:bold;
+	color:#333;
+	text-shadow:1px 1px 0 #fff; 
+	background:url(/static/art/minibutton_matrix.png) 0 0 no-repeat;
+	white-space:nowrap;
+	border:none;
+	overflow:visible;
+	cursor:pointer;
+	text-decoration:none;
+	vertical-align: middle;
+}
+
+a.minibutton>span {
+	display:block;
+	height:23px;
+	padding:0 10px 0 8px;
+	line-height:23px;
+	background:url(/static/art/minibutton_matrix.png) 100% 0 no-repeat;
+}
+a.btn-no-txt>span {
+	padding: 0 15px 0 8px;
+	text-indent: -9999px;
+}
+
+a.minibutton:hover, a.minibutton:focus {
+	color:#fff;
+	text-decoration:none;
+	text-shadow:-1px -1px 0 rgba(0,0,0,0.3);
+	background-position:0 -30px;
+}
+a.minibutton:hover>span, a.minibutton:focus>span {background-position:100% -30px;}
+
+a.minibutton.mousedown{background-position:0 -60px; }
+a.minibutton.mousedown>span{background-position:100% -60px; }
+
+/* icons */
+a.minibutton .icon {
+	float:left;
+	margin-left:-4px;
+	width:18px;
+	height:22px;
+	background:url(/static/art/minibutton_icons.png) 0 0 no-repeat;
+}
+
+a.btn-download .icon {background-position:-40px 0;}
+a.btn-download:hover .icon, a.btn-download:focus .icon {background-position:-40px -25px;}
+
+a.btn-left .icon {background-position:-161px 1px;}
+a.btn-left:hover .icon, a.btn-left:focus .icon {background-position:-161px -24px;}
+
+a.btn-right .icon {background-position:-178px 1px;}
+a.btn-right:hover .icon, a.btn-right:focus .icon {background-position:-178px -24px;}
+
+
+/*
+
+<!-- button 1:"plain" -->
+<a href="javascript:;" class="minibutton"><span>Basic Button</span></a>
+<!-- button 2:"icon" -->
+<a href="javascript:;" class="minibutton btn-download"><span><span class="icon"></span>Button With Icon</span></a>
+
+*/
+
+html, body {
+	height: 100%;
+}
+#mt-nav {
+	position: relative;
+	background: #c6d1dd;
+	border-right: 1px solid #666;
+	overflow: auto;
+	width: 180px;
+	height: 100%;
+	float: left;
+	padding: 0 8px;
+	z-index: 1;
+}
+#mt-nav h1 {
+	font-size: 14px;
+	padding: 8px;
+	background: #5a86b6;
+	color: #fff;
+	font-weight: bold;
+	position: relative;
+	margin: 0px -8px 8px;
+	border-bottom: 1px solid #666;
+}
+#mt-nav dl {
+	margin-top: 6px;
+}
+#mt-nav dt {
+	background: #fff;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	color: #000;
+	font-weight: bold;
+	padding: 4px;
+}
+#mt-nav ul {
+	padding: 0;
+	margin: 8px 0 8px 2px;
+}
+#mt-nav ul li {
+	list-style: none;
+	text-indent: -4px;
+	margin: 0 0 0 4px;
+}
+#mt-nav ul li.mt-selected span {
+	background: url("/static/art/minibutton_icons.png") no-repeat scroll -180px -4px transparent;
+	display: inline-block;
+	height: 12px;
+	width: 14px;
+}
+#mt-nav ul li.mt-selected {
+	text-indent: -14px;
+	margin: 0 0 0 14px;
+}
+#mt-nav ul a {
+	text-decoration: none;
+	color: #009;
+}
+#mt-nav a:hover {
+	text-decoration: underline;
+	color: #00E;
+}
+#mt-content_header {
+	font-size: 14px;
+	background: #C6D1DD;
+	color: #fff;
+	font-weight: bold;
+	position: relative;
+	border-bottom: 1px solid #666;
+	height: 33px;
+	z-index: 0;
+}
+#mt-content_header h2 {
+	font-weight: bold;
+	padding: 8px;
+	margin-left: 200px;
+	color: #5a86b6;
+}
+#mt-content_header div {
+	position: absolute;
+	right: 23px;
+	top: 4px;
+}
+#mt-content {
+	padding: 8px;
+	float: left;
+	position: relative;
+	width: auto;
+}
+#mt-loading {
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+	padding: 8px;
+	width: 120px;
+	text-align: center;
+	background: #ccc;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border: 1px solid #333;
+	box-shadow: 2px 2px 2px #888;
+	-moz-box-shadow: 2px 2px 2px #888;
+	-webkit-box-shadow: 2px 2px 2px #888;
+}
+body.loaded #mt-loading {
+	display: none;
+}
+#mt-nav h2 {
+	font-weight: bold;
+	font-size: 14px;
+}
