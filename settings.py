@@ -104,7 +104,7 @@ logging.basicConfig(level=logging.INFO)
 DEPENDER_PACKAGE_YMLS = (
   os.path.abspath(os.path.join(os.path.dirname(__file__), "ext", "core", "package.yml")),
   os.path.abspath(os.path.join(os.path.dirname(__file__), "ext", "more", "package.yml")),
-  os.path.abspath(os.path.join(os.path.dirname(__file__), "ext", "mootools-depender", "client", "package.yml")),
+  os.path.abspath(os.path.join(os.path.dirname(__file__), "ext", "depender", "client", "package.yml")),
 )
 DEPENDER_SCRIPTS_JSON = []
 
