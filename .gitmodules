@@ -3,7 +3,7 @@
 	url = git://github.com/mootools/mootools-more.git
 [submodule "ext/core"]
 	path = ext/core
-	url = git://github.com/mootools/mootools-core.git
+	url = git://github.com/anutron/mootools-core.git
 [submodule "ext/depender"]
 	path = ext/depender
 	url = git://github.com/anutron/mootools-depender.git
