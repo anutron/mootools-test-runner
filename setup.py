@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 import os
 
-base = os.path.join(os.path.dirname(__file__), "tests")
+base = os.path.join(os.path.dirname(__file__), "test_runner")
 
 setup(
-      name = "mootools_tests",
+      name = "mootools_test_runner",
       version = "0.1",
       url = 'http://www.mootools.net',
       description = "MooTools Test Suite",
