@@ -59,8 +59,7 @@ def test(request, path):
 HTML_MATCHER = re.compile("\.html$")
 
 def get_short_path(full_path):
-  root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "ext"))
-  return full_path.replace(root, "")
+  return full_path.replace(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "ext")), "")
 
 def get_files():
   dirs = dict()

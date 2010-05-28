@@ -36,13 +36,13 @@
 					<dt>${directory['subdir']}</dt>
 					<dd>
 						<ul>
-							% for file_path, title in directory['file_dict'].iteritems():
+							% for file_path, file_title in directory['file_dict'].iteritems():
 								<%
 									klass = ""
 									if file_path == str(current):
 										klass = "mt-selected"
 								%>
-								<li class="${klass}"><span></span><a href="/test${file_path}">${title}</a></li>
+								<li class="${klass}"><span></span><a href="/test${file_path}">${file_title}</a></li>
 								% endfor
 						</ul>
 					</dd>
