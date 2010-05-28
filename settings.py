@@ -72,7 +72,7 @@ MIDDLEWARE_CLASSES = (
     'djangomako.middleware.MakoMiddleware',
 )
 
-ROOT_URLCONF = 'mootools-test-runner.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".

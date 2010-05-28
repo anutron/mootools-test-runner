@@ -10,7 +10,7 @@
 			<link rel="stylesheet" href="/static/css/tests.css" type="text/css" media="screen" title="no title" charset="utf-8">
 			
 		</head>
-		<body>
+		<body class="not_loaded">
 		
 			${nav(title=title, projects=projects, current=current, previous=previous, next=next)}
 			<div id="mt-content">
@@ -20,7 +20,7 @@
 <%def name="footer()">
 			</div>
 			<script>
-				document.body.className += 'loaded';
+				document.body.className = 'loaded';
 			</script>
 		</body>
 	</html>
