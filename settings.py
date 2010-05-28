@@ -85,14 +85,9 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    'tests',
+    'test_runner',
     'depender',
     'django_extensions',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
 )
@@ -116,7 +111,7 @@ MOOTOOLS_TEST_LOCATIONS = {
 }
 
 MAKO_TEMPLATE_DIRS = (
-  os.path.abspath(os.path.join(os.path.dirname(__file__), "tests", "templates")),
+  os.path.abspath(os.path.join(os.path.dirname(__file__), "test_runner", "templates")),
 )
 
 TITLE_PREFIX = 'MooTools Tests'
