@@ -6,7 +6,7 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
     # Example:
-    # (r'^mootools_tests/', include('mootools_tests.foo.urls')),
+    # (r'^test_runner/', include('test_runner.foo.urls')),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
