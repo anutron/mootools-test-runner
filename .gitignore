@@ -1,4 +1,4 @@
 *.pyc
 /depender.egg-info
 /env
-test_runner/mootools_tests.egg-info
+test_runner/mootools_test_runner.egg-info

@@ -1,4 +1,4 @@
-# Django settings for mootools_tests project.
+# Django settings for mootools-test-runner project.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -76,7 +76,7 @@ MIDDLEWARE_CLASSES = (
     'djangomako.middleware.MakoMiddleware',
 )
 
-ROOT_URLCONF = 'mootools_tests.urls'
+ROOT_URLCONF = 'mootools-test-runner.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
