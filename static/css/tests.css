@@ -91,7 +91,7 @@ html, body {
 	min-height: 100%;
 }
 #mt-nav {
-	position: relative;
+	position: absolute;
 	background: #c6d1dd;
 	border-right: 1px solid #666;
 	overflow: auto;
@@ -176,10 +176,8 @@ html, body {
 }
 #mt-content {
 	padding: 8px;
-	float: left;
 	position: relative;
-	width: auto;
-	
+	margin-left: 200px;
 }
 #mt-loading {
 	position: fixed;
@@ -203,4 +201,14 @@ body.loaded #mt-loading {
 #mt-nav h2 {
 	font-weight: bold;
 	font-size: 14px;
+}
+
+#mt-content h3.h3_test {
+	border-bottom: 1px solid #999;
+	font-weight: bold;
+	font-size: 14px;
+	margin-top: 8px;
+}
+#mt-content p {
+	margin-bottom: 4px;
 }
