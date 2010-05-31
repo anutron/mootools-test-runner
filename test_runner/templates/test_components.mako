@@ -29,20 +29,20 @@
 <%def name="nav(title, projects, current=None, previous=None, next=None)">
 	<div id="mt-nav">
 		<h1>${title_prefix}</h1>
-		% for project, directories in projects.iteritems():
+		% for project, directories in sorted(projects.items()):
 			<h2>${project}</h2>
 			% for directory in directories:
 				<dl class="mt-tests">
 					<dt>${directory['subdir']}</dt>
 					<dd>
 						<ul>
-							% for file_path, file_title in directory['file_dict'].iteritems():
+							% for file_path, file_title in sorted(directory['file_dict'].items()):
 								<%
 									klass = ""
 									if file_path == str(current):
 										klass = "mt-selected"
 								%>
-								<li class="${klass}"><span></span><a href="/test${file_path}">${file_title}</a></li>
+								<li class="${klass}"><span></span><a href="/test/${file_path}">${file_title}</a></li>
 								% endfor
 						</ul>
 					</dd>
