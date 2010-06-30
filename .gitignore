@@ -2,3 +2,4 @@
 /depender.egg-info
 /env
 test_runner/mootools_test_runner.egg-info
+settings.py

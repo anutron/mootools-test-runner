@@ -5,6 +5,7 @@ quick setup:
 
 	$ git clone http://github.com/anutron/mootools-test-runner.git
 	$ git submodule update --init
+	$ cp settings_example.py settings.py
 	$ virtualenv env
 	$ env/bin/python ext/depender/django/setup.py develop
 	$ env/bin/python setup.py develop
