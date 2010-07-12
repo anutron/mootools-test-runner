@@ -1,7 +1,7 @@
 # Create your views here.
 
 from djangomako.shortcuts import render_to_response, render_to_string
-import os, re
+import os, re, time
 from django.conf import settings
 from django.http import HttpResponse
 from urllib import quote
@@ -18,6 +18,70 @@ def index(request):
       'previous': None
     }
   )
+
+def asset(request, project, path):
+  project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
+  full_path = os.path.normpath(project_dir + "/_assets/" + path)
+  if not os.path.isfile(full_path):
+    raise Exception("The path %s was not found." % path)
+
+
+  image_data = open(full_path, "rb").read()
+  if re.search("png$(?i)", path):
+    return HttpResponse(image_data, mimetype="image/png")
+  if re.search("jpg$(?i)", path):
+    return HttpResponse(image_data, mimetype="image/jpg")
+  if re.search("gif$(?i)", path):
+    return HttpResponse(image_data, mimetype="image/gif")
+  if re.search("css$(?i)", path):
+    return HttpResponse(image_data, mimetype="text/css")
+  if re.search("js$(?i)", path):
+    return HttpResponse(image_data, mimetype="application/x-javascript")
+  
+  raise Exception("Unknown asset type (currently only png/gif/jpg/css/js are supported).")
+
+# the following ajax responses borrowed from MooShell - thx Piotr!
+def ajax_json_echo(req, delay=True):
+  " echo GET and POST "
+  if delay:
+    time.sleep(2)
+  c = {'get_response':{},'post_response':{}}
+  for key, value in req.GET.items():
+    c['get_response'].update({key: value})
+  for key, value in req.POST.items():
+    c['post_response'].update({key: value})
+  return HttpResponse(simplejson.dumps(c),mimetype='application/javascript')
+
+
+def ajax_html_echo(req, delay=True):
+  if delay:
+    time.sleep(2)
+  t = req.REQUEST.get('html','')
+  return HttpResponse(t)
+
+
+def ajax_xml_echo(req, delay=True):
+  if delay:
+    time.sleep(2)
+  t = req.POST.get('xml','')
+  return HttpResponse(t, mimetype='application/xml')
+
+
+def ajax_json_response(req):
+  response_string = req.POST.get('response_string','This is a sample string') 
+  return HttpResponse(simplejson.dumps(
+    {
+      'string': response_string,
+      'array': ['This','is',['an','array'],1,2,3],
+      'object': {'key': 'value'}
+    }),
+    mimetype='application/javascript'
+  )
+
+
+def ajax_html_javascript_response(req):
+  return HttpResponse("""<p>A sample paragraph</p>
+<script type='text/javascript'>alert('sample alert');</script>""")
 
 def test(request):
   projects, flat_list = get_files()
@@ -75,12 +139,13 @@ def get_files():
     dirs[project_as_title] = []
     for root, subdirs, files in os.walk(directory):
       for subdir in subdirs:
-        testfiles = [os.path.join(directory, subdir, name) for name in os.listdir(os.path.join(directory, subdir)) if HTML_MATCHER.search(name)]
-        dirs[project_as_title].append(dict(
-          subdir=make_title(subdir),
-          files=testfiles,
-          file_dict=get_file_dict(testfiles, directory, project)
-        ))
+        if subdir != "_assets":
+          testfiles = [os.path.join(directory, subdir, name) for name in os.listdir(os.path.join(directory, subdir)) if HTML_MATCHER.search(name)]
+          dirs[project_as_title].append(dict(
+            subdir=make_title(subdir),
+            files=testfiles,
+            file_dict=get_file_dict(testfiles, directory, project)
+          ))
   flat_list = []
   for project, directories in dirs.iteritems():
     for directory in directories:
