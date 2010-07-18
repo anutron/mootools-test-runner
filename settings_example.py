@@ -64,7 +64,7 @@ MOOTOOLS_TEST_LOCATIONS = {
 #these are typically in the Tests directory of the repository
 #example: ext/more/Tests
 
-  "MooTools More": os.path.abspath(os.path.join(os.path.dirname(__file__), "ext", "more", "Tests"))
+  "more": os.path.abspath(os.path.join(os.path.dirname(__file__), "ext", "more", "Tests"))
 }
 
 MAKO_TEMPLATE_DIRS = (
