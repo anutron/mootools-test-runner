@@ -36,6 +36,10 @@ def asset(request, project, path):
     return HttpResponse(image_data, mimetype="text/css")
   if re.search("js$(?i)", path):
     return HttpResponse(image_data, mimetype="application/x-javascript")
+  if re.search("flv$(?i)", path):
+    return HttpResponse(image_data, mimetype="video/x-flv")
+  if re.search("swf$(?i)", path):
+    return HttpResponse(image_data, mimetype="application/x-shockwave-flash")
   
   raise Exception("Unknown asset type (currently only png/gif/jpg/css/js are supported).")
 
