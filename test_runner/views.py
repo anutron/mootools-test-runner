@@ -7,10 +7,9 @@ from django.http import HttpResponse
 from urllib import quote
 
 def index(request):
-  projects, flat_list = get_files()
+  projects, dir_map = get_files()
   return render_to_response('index.mako', 
     {
-      'flat_list': flat_list,
       'projects': projects,
       'title_prefix': settings.TITLE_PREFIX,
       'current': None,
@@ -84,55 +83,73 @@ def ajax_html_javascript_response(req):
 <script type='text/javascript'>alert('sample alert');</script>""")
 
 def test(request):
-  projects, flat_list = get_files()
+  projects, dir_map = get_files()
   project = request.REQUEST.get('project')
   path = request.REQUEST.get('path')
   
   project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
   full_path = os.path.normpath(project_dir+path)
 
+  dir_keys = dir_map.keys()
   try:
-    current_index = flat_list.index(full_path)
+    current_index = dir_keys.index(full_path)
   except:
     raise Exception("The path %s was not found." % path)
-  
-  next = current_index + 1
-  prev = current_index - 1
-  if prev >= 0:
-    prev = get_short_path(flat_list[prev])
-  else:
-    prev = None
-  if next < len(flat_list):
-    next = get_short_path(flat_list[next])
-  else:
-    next = None
 
-  if full_path in flat_list:
-    f = open(full_path)
-    return render_to_response('test.mako', 
-      {
-        'test': f.read(),
-        'title': make_title(path),
-        'current': make_url(path, project),
-        'projects': projects,
-        'flat_list': flat_list,
-        'title_prefix': settings.TITLE_PREFIX,
-        'previous': prev,
-        'next': next
-      }
-    )
-    
+  prev = None
+  next = None
+  found = False
+  for proj, directories in sorted(projects.items()):
+    if next is not None:
+      break
+    for directory in directories:
+      if next is not None:
+        break
+      for file_path, file_title in sorted(directory['file_dict'].items()):
+        if next is not None:
+          break
+        if found:
+          next = file_path
+        if str(file_path.split('path=')[-1]) == str(path):
+          found = True
+        if not found:
+          prev = file_path
+
+  if prev:
+    prev_name = make_title(prev)
   else:
-    raise Exception("The path you requested is not a valid test path.")
+    prev_name = None
+  if next:
+    next_name = make_title(next)
+  else:
+    next_name = None
+
+
+  f = open(full_path)
+  return render_to_response('test.mako', 
+    {
+      'test': f.read(),
+      'title': make_title(path),
+      'current': make_url(path, project),
+      'projects': projects,
+      'title_prefix': settings.TITLE_PREFIX,
+      'previous': prev,
+      'prev_name':prev_name,
+      'next': next,
+      'next_name':next_name,
+    }
+  )
 
 HTML_MATCHER = re.compile("\.html$")
 
-def get_short_path(full_path):
-  ret = full_path.replace(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "ext")), "")
-  return ret
+def get_url(test):
+  project_dir = settings.MOOTOOLS_TEST_LOCATIONS[test['project']]
+  path = test['filename'].replace(project_dir, '')
+  return make_url(path, test['project'])
 
 def get_files():
   dirs = dict()
+  file_map = dict()
   for project, directory in settings.MOOTOOLS_TEST_LOCATIONS.iteritems():
     files = []
     project_as_title = make_title(project)
@@ -146,11 +163,13 @@ def get_files():
             files=testfiles,
             file_dict=get_file_dict(testfiles, directory, project)
           ))
-  flat_list = []
-  for project, directories in dirs.iteritems():
-    for directory in directories:
-      flat_list.extend(directory['files'])
-  return dirs, flat_list
+          for filename in testfiles:
+            file_map[filename] = dict(
+              project=project_as_title,
+              subdir=subdir,
+              filename=filename
+            )
+  return dirs, file_map
 
 def get_file_dict(files, directory, project):
   return dict([(make_url(file.replace(directory, ''), project), make_title(file.split('/')[-1])) for file in files])
