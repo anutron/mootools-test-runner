@@ -53,3 +53,38 @@ Note that to use this method you have to include `Element.Event` in your test be
 Also note that the menu is injected into a definition list with the id `actions`. If it can't find one, it will inject one for you. If you want to control where this menu shows up in the DOM of your test, include an empty definition list:
 
 	<dl id="actions"></dl>
+
+Assets
+======
+
+If you need to include an external asset with your test (an image, css file, etc) you must reference it with the following path formula:
+
+	/asset/[project name]/[file name]
+
+In addition to this, the file in question must exist in a directory called `_assets` in your test directory.
+
+Ajax Helpers
+============
+
+The test framework comes with several Ajax helpers for your tests. These are:
+
+### /ajax_json_response
+
+Returns a JSON encoded response containing a `string`, `object`, and `array`. Specify a value for `response_string` in the POST or GET parameters to set the string explicitly. This response is returned with the `application/javascript` mimetype.
+
+### /ajax_html_javascript_response
+
+Returns a standard HTML response that contains a paragraph and a `script` tag with an alert in it.
+
+### /ajax_json_echo
+
+Returns a JSON response of all the GET and POST parameters of your request with an `application/javascript` mimetype.
+
+
+### /ajax_html_echo
+
+Returns a response containing whatever you specify in the `html` GET or POST value.
+
+### /ajax_xml_echo
+
+Returns a response containing whatever you specify in the `xml` GET or POST value with a `application/xml` mime type.
