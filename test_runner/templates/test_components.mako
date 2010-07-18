@@ -74,10 +74,10 @@
 		<h2>${title}</h2>
 		<div>
 		% if previous:
-			<a class="mt-prev minibutton btn-left" href="/test${previous}"><span><span class="icon"></span>previous</span></a>
+			<a class="mt-prev minibutton btn-left" href="/test${previous}"><span><span class="icon"></span>previous (${prev_name})</span></a>
 		% endif
 		% if next:
-		<a class="mt-next minibutton btn-right" href="/test${next}"><span><span class="icon"></span>next</span></a>
+		<a class="mt-next minibutton btn-right" href="/test${next}"><span><span class="icon"></span>next (${next_name})</span></a>
 		% endif
 		</div>
 	</div>
