@@ -51,7 +51,7 @@
 		<h1>${title_prefix}</h1>
 		% for project, directories in sorted(projects.items()):
 			<h2>${project}</h2>
-			% for directory in directories:
+			% for directory in sorted(directories):
 				<dl class="mt-tests">
 					<dt>${directory['subdir']}</dt>
 					<dd>

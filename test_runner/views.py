@@ -106,7 +106,7 @@ def test(request):
   for proj, directories in sorted(projects.items()):
     if next is not None:
       break
-    for directory in directories:
+    for directory in sorted(directories):
       if next is not None:
         break
       for file_path, file_title in sorted(directory['file_dict'].items()):
