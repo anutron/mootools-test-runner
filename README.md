@@ -25,3 +25,31 @@ To install virtualenv on OSX, [follow these instructions](http://www.fprimex.com
 	sudo python ez_setup.py
 	sudo easy_install virtualenv
 	rm ez_setup.py
+
+Writing test menus
+==================
+
+To aid in authoring a log of functions to run in a context there's a helper function included in the test runner. If you have a test that has numerous states you want to test (for example, an effect you want to run several times with different arguments) you can easily generate a menu for users. Simply call `makeActions` and pass it an array of objects with test information like this:
+
+	var fx = new Fx.Scroll('scrollExample', {duration: 500});
+	makeActions([
+		{
+			title: 'Scroll the box to the bottom.',
+			description: 'If you define a description, this shows up below the button; this is optional!',
+			fn: fx.toBottom.bind(fx)
+		},
+		{
+			title: 'Scroll the box to the right.',
+			fn: function(){
+				fx.toRight();
+			}
+		}
+	]);
+
+Note that to use this method you have to include `Element.Event` in your test before you call makeActions, like so:
+
+	<script src="/depender/build?require=Core/Element.Event"></script>
+
+Also note that the menu is injected into a definition list with the id `actions`. If it can't find one, it will inject one for you. If you want to control where this menu shows up in the DOM of your test, include an empty definition list:
+
+	<dl id="actions"></dl>

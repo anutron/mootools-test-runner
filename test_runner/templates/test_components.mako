@@ -8,7 +8,27 @@
 			<title>${title_prefix} - ${title}</title>
 			<link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="screen" title="no title" charset="utf-8">
 			<link rel="stylesheet" href="/static/css/tests.css" type="text/css" media="screen" title="no title" charset="utf-8">
-			
+			<script>
+			var makeActions = function(tests){
+				try {
+					if (!$('actions')) new Element('dt', {'id': 'actions'}).inject($('mt-content'), 'top');
+					tests.each(function(test) {
+						new Element('dt').adopt(
+							new Element('a', {
+								text: test.title,
+								events: {
+									click: test.fn
+								}
+							})
+						).inject('actions');
+						if (test.description) new Element('dd', { text: test.description }).inject('actions');
+					});
+				} catch(e) {
+					alert('Could not create actions. Check console for details.');
+					console.log('Ensure you have Core/Element.Event - plus its dependencies.', e);
+				}
+			};
+			</script>
 		</head>
 		<body class="not_loaded">
 		

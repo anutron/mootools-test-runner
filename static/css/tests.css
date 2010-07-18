@@ -212,3 +212,31 @@ body.loaded #mt-loading {
 #mt-content p {
 	margin-bottom: 4px;
 }
+#actions {
+	width: 400px;
+	position: relative;
+	z-index: 1000;
+	background: #fff;
+	padding: 4px 0px;
+}
+#actions dt {
+	font-weight: bold;
+	margin: 8px;
+}
+#actions dt a {
+	display: block;
+	background: #AABCF2;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	padding: 4px;
+}
+#actions dt a:hover {
+	background: #CACEE8;
+}
+#actions dd {
+	padding: 0px 4px;
+	margin: 0px 8px;
+	position: relative;
+	top: -8px;
+}
