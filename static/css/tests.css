@@ -94,9 +94,8 @@ html, body {
 	position: absolute;
 	background: #c6d1dd;
 	border-right: 1px solid #666;
-	overflow: auto;
 	width: 180px;
-	height: 1200px;
+	min-height: 1200px;
 	float: left;
 	padding: 0 8px;
 	z-index: 1;
