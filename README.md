@@ -46,6 +46,13 @@ Sometimes a test will have a problem. When this happens, your browser will do on
 * If the test fails because the dependency map is invalid but the test suite is in debug mode, nothing will happen. This is because the `script` file that included the JavaScript for the test (See section below on authoring tests) has thrown an error and the server has returned a debugging console (HTML) instead of a JavaScript response. You can open the source of that JavaScript tag and view this console which can be helpful in debugging the issue.
 * If the test fails because of a problem in your JavaScript itself (syntax errors and the like) you'll want to use a debugger like [Firebug](http://getfirebug.com) to determine the issue.
 
+Debug Settings
+==============
+
+In `settings.py` there are two debug settings. One is at the top and in the settings example is set to `Debug = True`. When this value is set the server displays an HTML response with a debug console in your browser when things fail. This includes requests for scripts that have missing dependencies. As a result, nothing happens in the browser because the `script` tag gets back an HTML response and just dies. Open the source url for the script tag to see the stack trace. Set `Debug = False` and you'll get an alert that there has been an error, though this alert is not very informative (but at least you are made aware of it).
+
+The other debug statement is `DEPENDER_DEBUG = True` (this is default). This setting forces the Depender app to reload the JavaScript from the disk every time you request anything, which is rather slow, but useful for development. Set this to `False` to force it to cache everything in memory, which is much faster.
+
 Writing Tests
 =============
 
