@@ -126,6 +126,9 @@ html, body {
 	font-weight: bold;
 	padding: 4px;
 }
+#mt-nav dd {
+	margin-left: 0;
+}
 #mt-nav ul {
 	padding: 0;
 	margin: 8px 0 8px 2px;
