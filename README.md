@@ -26,7 +26,49 @@ To install virtualenv on OSX, [follow these instructions](http://www.fprimex.com
 	sudo easy_install virtualenv
 	rm ez_setup.py
 
-Writing test menus
+Validating the Dependency map
+==================
+
+When you request JavaScript for a test (see section below on Writing Tests) the [Depender](http://github.com/anutron/mootools-depender) application (included via submodule) maps the dependencies for your requested components and loads all the related JavaScript. If your dependency map is incomplete or contains errors your test will fail to load (see section below on this topic).
+
+You can validate your entire dependency map from the command line. This is recommended if you are using libraries that are not included via the default submodules (which have been verified to have valid dependency maps):
+
+	$ env/bin/python ext/depender/django/mootools/manage.py depender_check
+
+This should print out the entire dependency map for you. If it throws errors, you must resolve the conflicts before you can include the errant source files.
+
+When Tests Fail To Load
+=================
+
+Sometimes a test will have a problem. When this happens, your browser will do one of the following:
+
+* If the test fails because the dependency map is invalid *and* _the test suite is not in debug mode_, you will see an alert that something has gone wrong in the attemp to load the JavaScript for that test. If you are running the server yourself, check the output from the command line to see the error.
+* If the test fails because the dependency map is invalid but the test suite is in debug mode, nothing will happen. This is because the `script` file that included the JavaScript for the test (See section below on authoring tests) has thrown an error and the server has returned a debugging console (HTML) instead of a JavaScript response. You can open the source of that JavaScript tag and view this console which can be helpful in debugging the issue.
+* If the test fails because of a problem in your JavaScript itself (syntax errors and the like) you'll want to use a debugger like [Firebug](http://getfirebug.com) to determine the issue.
+
+Writing Tests
+=============
+
+Tests are simple html files that contain inline css or style tags, HTML tags, and script tags. Typically they do not use any sort of domready function but rather rely upon load order for referencing the DOM. Here's a simple test that sets the style of an element:
+
+	<p>I set the style of the box below from red to blue and back when the link below is clicked.</a>
+	<div id="box" style="height: 100px; width: 100px; background: red;"></div>
+	<a id="toggle">Toggle the color</a>
+	<script src="/depender/build?require=Core/Element.Event,Core/Element.Style"></script>
+	<script>
+		var currentColor = 'red';
+		$('toggle').addEvent('click', function(){
+			if (currentColor == 'red') currentColor = 'blue;
+			else currentColor = 'red';
+			$('box').setStyle('background', currentColor);
+		});
+	</script>
+
+As seen in the above example, there is some HTML that explains what the test does (it is highly recommended that you include it). Then some HTML for the test itself. Finally, a script tag that requires the needed components from [Depender](http://github.com/anutron/mootools-depender) and a script that sets up and runs your test.
+
+This content is put in an HTML file in one of your included libraries' /Tests directory.
+
+Writing Test Menus
 ==================
 
 To aid in authoring a log of functions to run in a context there's a helper function included in the test runner. If you have a test that has numerous states you want to test (for example, an effect you want to run several times with different arguments) you can easily generate a menu for users. Simply call `makeActions` and pass it an array of objects with test information like this:
@@ -88,3 +130,4 @@ Returns a response containing whatever you specify in the `html` GET or POST val
 ### /ajax_xml_echo
 
 Returns a response containing whatever you specify in the `xml` GET or POST value with a `application/xml` mime type.
+

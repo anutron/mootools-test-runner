@@ -48,7 +48,7 @@
 
 <%def name="nav(title, projects, current=None, previous=None, next=None)">
 	<div id="mt-nav">
-		<h1>${title_prefix}</h1>
+		<h1><a href="/">${title_prefix}</a></h1>
 		% for project, directories in sorted(projects.items()):
 			<h2>${project}</h2>
 			% for directory in sorted(directories):

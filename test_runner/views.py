@@ -4,12 +4,16 @@ from djangomako.shortcuts import render_to_response, render_to_string
 import os, re, time
 from django.conf import settings
 from django.http import HttpResponse
+from markdown import markdown
 from urllib import quote
 
 def index(request):
   projects, dir_map = get_files()
+  welcome_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "WELCOME.md"))
+  welcome = open(welcome_file, 'rb').read()
   return render_to_response('index.mako', 
     {
+      'welcome': markdown(welcome),
       'projects': projects,
       'title_prefix': settings.TITLE_PREFIX,
       'current': None,
