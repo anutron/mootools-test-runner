@@ -90,10 +90,14 @@ def ajax_html_javascript_response(req):
   return HttpResponse("""<p>A sample paragraph</p>
 <script type='text/javascript'>alert('sample alert');</script>""")
 
+def specs(request, project):
+
 def test(request):
   projects, dir_map = get_files()
   project = request.REQUEST.get('project')
   path = request.REQUEST.get('path')
+  if project is None or path is none:
+    raise Exception("You must specify a project and a path.")
   
   project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
   full_path = os.path.normpath(project_dir+path)
