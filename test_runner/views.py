@@ -1,7 +1,7 @@
 # Create your views here.
 
 from djangomako.shortcuts import render_to_response, render_to_string
-import os, re, time
+import os, re, time, simplejson, random
 from django.conf import settings
 from django.http import HttpResponse
 from markdown import markdown
@@ -48,46 +48,105 @@ def asset(request, project, path):
   raise Exception("Unknown asset type (currently only png/gif/jpg/css/js are supported).")
 
 # the following ajax responses borrowed from MooShell - thx Piotr!
+def echo_js(req):
+    " respond JS from GET/POST['js']"
+    sleeper(req)
+    return HttpResponse(req.REQUEST.get('js', ''),
+                      mimetype='application/javascript')
+
+
+def echo_json(req):
+    " respond with GET/POST['json'] "
+    sleeper(req)
+    try:
+        response = simplejson.dumps(
+            simplejson.loads(req.REQUEST.get('json', '{}')))
+    except Exception, e:
+        response = simplejson.dumps({'error': str(e)})
+
+    return HttpResponse(
+        response,
+        mimetype='application/javascript'
+    )
+
+
+def echo_html(req):
+    " respond with GET/POST['html'] "
+    sleeper(req)
+    return HttpResponse(req.REQUEST.get('html', ''))
+
+
+def echo_jsonp(req):
+    " respond what provided via GET/POST "
+    sleeper(req)
+    response = {}
+    callback = req.REQUEST.get('callback', False)
+    noresponse_keys = ['callback', 'delay']
+
+    for key, value in req.REQUEST.items():
+        if key not in noresponse_keys:
+            response.update({key: value})
+
+    response = simplejson.dumps(response)
+
+    if callback:
+        response = '%s(%s);' % (callback, response)
+
+    return HttpResponse(response, mimetype='application/javascript')
+
+
+def echo_xml(req):
+    " respond with GET/POST['xml'] "
+    sleeper(req)
+    return HttpResponse(req.REQUEST.get('xml', ''), mimetype='text/xml')
+
+def sleeper(req):
+  if req.REQUEST.get('delay'):
+      time.sleep(min(MAX_DELAY, float(req.REQUEST.get('delay'))))
+
 def ajax_json_echo(req, delay=True):
-  " echo GET and POST "
-  if delay:
-    time.sleep(2)
-  c = {'get_response':{},'post_response':{}}
-  for key, value in req.GET.items():
-    c['get_response'].update({key: value})
-  for key, value in req.POST.items():
-    c['post_response'].update({key: value})
-  return HttpResponse(simplejson.dumps(c),mimetype='application/javascript')
+    " OLD: echo GET and POST via JSON "
+    if delay:
+        time.sleep(random.uniform(1,3))
+    c = {'get_response':{},'post_response':{}}
+    for key, value in req.GET.items():
+        c['get_response'].update({key: value})
+    for key, value in req.POST.items():
+        c['post_response'].update({key: value})
+    return HttpResponse(simplejson.dumps(c),mimetype='application/javascript')
 
 
 def ajax_html_echo(req, delay=True):
-  if delay:
-    time.sleep(2)
-  t = req.REQUEST.get('html','')
-  return HttpResponse(t)
+    " OLD: echo POST['html'] "
+    if delay:
+        time.sleep(random.uniform(1,3))
+    t = req.POST.get('html','')
+    return HttpResponse(t)
 
 
 def ajax_xml_echo(req, delay=True):
-  if delay:
-    time.sleep(2)
-  t = req.REQUEST.get('xml','')
-  return HttpResponse(t, mimetype='application/xml')
+    " OLD: echo POST['xml'] "
+    if delay:
+        time.sleep(random.uniform(1,3))
+    t = req.POST.get('xml','')
+    return HttpResponse(t, mimetype='application/xml')
 
 
 def ajax_json_response(req):
-  response_string = req.REQUEST.get('response_string','This is a sample string') 
-  return HttpResponse(simplejson.dumps(
-    {
-      'string': response_string,
-      'array': ['This','is',['an','array'],1,2,3],
-      'object': {'key': 'value'}
-    }),
-    mimetype='application/javascript'
-  )
+    " OLD: standard JSON response "
+    response_string = req.POST.get('response_string','This is a sample string')
+    return HttpResponse(simplejson.dumps(
+        {
+            'string': response_string,
+            'array': ['This','is',['an','array'],1,2,3],
+            'object': {'key': 'value'}
+        }),
+        mimetype='application/javascript'
+    )
 
 
 def ajax_html_javascript_response(req):
-  return HttpResponse("""<p>A sample paragraph</p>
+    return HttpResponse("""<p>A sample paragraph</p>
 <script type='text/javascript'>alert('sample alert');</script>""")
 
 def test(request):

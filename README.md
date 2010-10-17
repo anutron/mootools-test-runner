@@ -117,9 +117,32 @@ Ajax Helpers
 
 The test framework comes with several Ajax helpers for your tests. These are:
 
+### /echo/js
+
+Returns whatever you send as POST or GET value "js" as application/javascript mime type.
+Pass in value for "delay" for any delay you want (eg. delay=5 for 5 seconds).
+
+### /echo/json
+
+Returns whatever you send as POST or GET value "json" as application/javascript mime type. If an error is thrown it is returned as json. If no value is sent "{}" is returned.
+Pass in value for "delay" for any delay you want (eg. delay=5 for 5 seconds).
+
+### /echo/jsonp
+
+Returns any POST or GET params encoded as json values wrapped in whatever you specify as "callback"
+Pass in value for "delay" for any delay you want (eg. delay=5 for 5 seconds).
+
+### /echo/html
+
+Returns whatever you send as POST or GET value "html".
+Pass in value for "delay" for any delay you want (eg. delay=5 for 5 seconds).
+
+Old Ajax Helpers
+================
+
 ### /ajax_json_response
 
-Returns a JSON encoded response containing a `string`, `object`, and `array`. Specify a value for `response_string` in the POST or GET parameters to set the string explicitly. This response is returned with the `application/javascript` mimetype.
+Returns a JSON encoded response containing a `string`, `object`, and `array`. Specify a value for `response_string` in the POST or GET parameters to set the string explicitly. This response is returned with the `application/javascript` mimetype. Specify a `callback` option if you want to wrap the JSON in a function call.
 
 ### /ajax_html_javascript_response
 
@@ -127,7 +150,7 @@ Returns a standard HTML response that contains a paragraph and a `script` tag wi
 
 ### /ajax_json_echo
 
-Returns a JSON response of all the GET and POST parameters of your request with an `application/javascript` mimetype.
+Returns a JSON response of all the GET and POST parameters of your request with an `application/javascript` mimetype. Specify a `callback` option if you want to wrap the JSON in a function call.
 
 
 ### /ajax_html_echo
