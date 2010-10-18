@@ -6,8 +6,6 @@ urlpatterns = patterns('test_runner.views',
     (r'^test/', 'test'),
     (r'^asset/(?P<project>\w+)/(?P<path>.*)$', 'asset'),
     (r'^depender/', include('depender.urls')),
-    (r'^static/(?P<path>.*)$', 'django.views.static.serve',
-      {'document_root': os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static"))}),
     # Echo
     url(r'^echo/js/$','echo_js', name='echo_js'),
     url(r'^echo/json/$','echo_json', name='echo_json'),
