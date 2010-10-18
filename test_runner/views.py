@@ -102,7 +102,7 @@ def echo_xml(req):
 
 def sleeper(req):
   if req.REQUEST.get('delay'):
-      time.sleep(min(MAX_DELAY, float(req.REQUEST.get('delay'))))
+      time.sleep(float(req.REQUEST.get('delay')))
 
 def ajax_json_echo(req, delay=True):
     " OLD: echo GET and POST via JSON "
