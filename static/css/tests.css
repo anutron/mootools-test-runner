@@ -15,7 +15,6 @@ a {
 body.not_loaded #mt-content {
 	height: 0px;
 	overflow:hidden;
-	padding: 0px;
 }
 /* button basics from github */
 a.minibutton {
