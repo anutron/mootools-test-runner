@@ -11,13 +11,13 @@
 		<div class="view_source">
 			${components.nav(title=title + " source", current=current, view="source")}
 			<div class="source">
-			  <h3>Relevant sources</h3>
-        <a name="top"></a>
+				<h3>Relevant sources</h3>
+				<a name="top"></a>
 				<ul>
-					<li class="tab html-tab"><a href="#html">HTML/Template</a></li>
+					<li class="tab html-tab"><a href="#html">HTML Test</a></li>
 					%for js_name in js_data.iterkeys():
 						<li class="tab">
-							<a href="#${js_name}">${js_name.split('/')[1]}</a>
+							<a href="#${js_name}">${js_name}</a>
 						</li>
 					%endfor
 				</ul>
@@ -27,9 +27,9 @@
 
 				## JS data
 				%for js_name, js in js_data.iteritems():
-				  <a name="${js_name}"></a>
+					<a name="${js_name}"></a>
 					<h3>Source for <code>${js_name}</code>
-					  <a class="totop" href="#top">back to top</a>
+						<a class="totop" href="#top">back to top</a>
 					</h3>
 					${js|n}
 				%endfor
