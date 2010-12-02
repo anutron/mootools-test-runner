@@ -4,6 +4,7 @@ import os
 urlpatterns = patterns('test_runner.views',
     (r'^$', 'index'),
     (r'^test/', 'test'),
+    (r'^source/', 'view_source'),
     (r'^asset/(?P<project>\w+)/(?P<path>.*)$', 'asset'),
     (r'^depender/', include('depender.urls')),
     # Echo

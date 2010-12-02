@@ -1,11 +1,27 @@
 # Create your views here.
 
 from djangomako.shortcuts import render_to_response, render_to_string
-import os, re, time, simplejson, random
+import os
+import re
+import time
+import simplejson
+import random
+import mako
+from mako.template import Template
 from django.conf import settings
 from django.http import HttpResponse
 from markdown import markdown
 from urllib import quote
+
+from depender.views import depender as dep
+from pygments import highlight
+from pygments.filters import NameHighlightFilter
+from pygments.formatters import HtmlFormatter
+from pygments.lexers import get_lexer_by_name
+from pygments.token import Name
+import yaml
+
+
 
 def index(request):
   projects, dir_map = get_files()
@@ -29,23 +45,25 @@ def asset(request, project, path):
     raise Exception("The path %s was not found." % path)
 
 
-  image_data = open(full_path, "rb").read()
+  data = open(full_path, "rb").read()
+  if re.search("html$(?i)", path):
+    return HttpResponse(data, mimetype="text/html")
   if re.search("png$(?i)", path):
-    return HttpResponse(image_data, mimetype="image/png")
+    return HttpResponse(data, mimetype="image/png")
   if re.search("jpg$(?i)", path):
-    return HttpResponse(image_data, mimetype="image/jpg")
+    return HttpResponse(data, mimetype="image/jpg")
   if re.search("gif$(?i)", path):
-    return HttpResponse(image_data, mimetype="image/gif")
+    return HttpResponse(data, mimetype="image/gif")
   if re.search("css$(?i)", path):
-    return HttpResponse(image_data, mimetype="text/css")
+    return HttpResponse(data, mimetype="text/css")
   if re.search("js$(?i)", path):
-    return HttpResponse(image_data, mimetype="application/x-javascript")
+    return HttpResponse(data, mimetype="application/x-javascript")
   if re.search("flv$(?i)", path):
-    return HttpResponse(image_data, mimetype="video/x-flv")
+    return HttpResponse(data, mimetype="video/x-flv")
   if re.search("swf$(?i)", path):
-    return HttpResponse(image_data, mimetype="application/x-shockwave-flash")
+    return HttpResponse(data, mimetype="application/x-shockwave-flash")
   
-  raise Exception("Unknown asset type (currently only png/gif/jpg/css/js are supported).")
+  raise Exception("Unknown asset type (currently only html/png/gif/jpg/css/js are supported).")
 
 # the following ajax responses borrowed from MooShell - thx Piotr!
 def echo_js(req):
@@ -103,6 +121,8 @@ def echo_xml(req):
 def sleeper(req):
   if req.REQUEST.get('delay'):
       time.sleep(float(req.REQUEST.get('delay')))
+  if req.REQUEST.get('sleep'):
+      time.sleep(float(req.REQUEST.get('sleep')))
 
 def ajax_json_echo(req, delay=True):
     " OLD: echo GET and POST via JSON "
@@ -149,10 +169,78 @@ def ajax_html_javascript_response(req):
     return HttpResponse("""<p>A sample paragraph</p>
 <script type='text/javascript'>alert('sample alert');</script>""")
 
+def view_source(request):
+  project = request.REQUEST.get('project')
+  path = request.REQUEST.get('path')
+  if project is None or path is None:
+    raise Exception("You must specify a project and a path.")
+
+  projects, dir_map = get_files()
+  project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
+  full_path = os.path.normpath(project_dir+path)
+
+  file_path, extension = os.path.splitext(path)
+  try:
+    data = format_code(extension, file(full_path).read())
+  except OSError, ex:
+    raise Exception("Cannot read requested gallery template: %s" % (path,))
+
+
+
+
+  # Load the js references
+  js_data = { }         # map of { name: js content }
+  yml_file = os.path.splitext(full_path)[0] + '.yml'
+  if os.path.exists(yml_file):
+    yml = yaml.load(file(yml_file))
+    try:
+      for ref in yml['js-references']:
+        try:
+          js_pkg, js_comp = ref.split('/')
+        except ValueError:
+          raise Exception('Invalid line "%s" in file %s' % (ref, yml_file))
+        try:
+          file_data = dep.get((js_pkg, js_comp))
+          js_data[ref] = format_code('.js', file_data.content)
+        except:
+          raise Exception(
+            'Cannot locate "%s" package "%s" component' % (js_pkg, js_comp))
+    except KeyError, ex:
+      LOG.warn('%s does not have a "js-references" section' % (yml_file,))
+
+  return render_to_response('view_source.mako',
+      {
+      'data': data,
+      'js_data': js_data,
+      'title': make_title(path.split('/')[-1]),
+      'current': make_url(path, project),
+      'projects': projects,
+      'title_prefix': settings.TITLE_PREFIX,
+    }
+  )
+
+_LEXER_MAP = {
+  '.html': get_lexer_by_name('html', tabsize=2),
+  '.js': get_lexer_by_name('js', tabsize=2),
+  '.mako': get_lexer_by_name('mako', tabsize=2),
+}
+
+
+def format_code(extension, code_str):
+  """Fix indent and highlight code"""
+  try:
+    lexer = _LEXER_MAP[extension]
+    return highlight(code_str, lexer, HtmlFormatter())
+  except KeyError:
+    LOG.warn('Cannot find lexer for extension %s' % (extension,))
+    return "<div><pre>%s</pre></div>" % (code_str,)
+
+
 def test(request):
   projects, dir_map = get_files()
   project = request.REQUEST.get('project')
   path = request.REQUEST.get('path')
+  sleeper(request)
   if project is None or path is None:
     raise Exception("You must specify a project and a path.")
   
@@ -185,20 +273,43 @@ def test(request):
           prev = file_path
 
   if prev:
-    prev_name = make_title(prev)
+    prev_name = make_title(prev.split('/')[-1])
   else:
     prev_name = None
   if next:
-    next_name = make_title(next)
+    next_name = make_title(next.split('/')[-1])
   else:
     next_name = None
 
 
-  f = open(full_path)
-  return render_to_response('test.mako', 
-    {
-      'test': f.read(),
-      'title': make_title(path),
+  test_source = open(full_path).read()
+  template = 'test.mako'
+  
+  post_vars = None
+  if request.POST: post_vars = request.POST.iteritems()
+  if request.REQUEST.get('sleep'):
+    sleep = int(request.REQUEST.get('sleep'))
+    time.sleep(sleep)
+  if re.search("mako$", full_path):
+    request.path = request.META.get('PATH_INFO')
+    if request.META.get('QUERY_STRING') and len(request.META.get('QUERY_STRING')) > 0:
+      request.path += "?" + request.META.get('QUERY_STRING')
+    source = Template(test_source).render(
+      post_vars = post_vars,
+      get_var = request.REQUEST.get,
+      get_list = request.REQUEST.getlist,
+      request_path = request.path,
+      get_request = lambda: request
+    )
+  else:
+    source = test_source
+  if ('test_runner_no_wrapper' in source or request.REQUEST.get('no_wrapper') == 'true'):
+    template = 'blank.mako'
+  
+  return render_to_response(template,
+      {
+      'test': source,
+      'title': make_title(path.split('/')[-1]),
       'current': make_url(path, project),
       'projects': projects,
       'title_prefix': settings.TITLE_PREFIX,
@@ -209,7 +320,7 @@ def test(request):
     }
   )
 
-HTML_MATCHER = re.compile("\.html$")
+HTML_MATCHER = re.compile("\.(html|mako)$")
 
 def get_url(test):
   project_dir = settings.MOOTOOLS_TEST_LOCATIONS[test['project']]
@@ -247,4 +358,4 @@ def make_url(path, project):
   return '?project='+quote(project)+'&path='+path
 
 def make_title(path):
-  return path.split('/')[-1].replace('.html', '').replace('_', ' ')
+  return re.sub('(\.|_)', ' ', re.sub('(\.(html|mako))', '', path))

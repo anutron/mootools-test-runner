@@ -8,7 +8,7 @@ setup(
       version = "0.1",
       url = 'http://www.mootools.net',
       description = "MooTools Test Suite",
-      install_requires = ['setuptools', 'django', 'PyYAML', 'simplejson', 'django_extensions', 'django-mako', 'werkzeug', 'Markdown'],
+      install_requires = ['setuptools', 'django', 'PyYAML', 'simplejson', 'django_extensions', 'django-mako', 'werkzeug', 'Markdown', 'Pygments'],
       packages = find_packages(base),
       package_dir={'': base}
 )

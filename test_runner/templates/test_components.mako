@@ -108,29 +108,31 @@
 	</html>
 </%def>
 
-<%def name="nav(title, projects, current=None, previous=None, next=None)">
+<%def name="nav(title, projects=None, current=None, previous=None, next=None, view='test')">
 	<div id="mt-nav">
 		<h1><a href="/">${title_prefix}</a></h1>
-		% for project, directories in sorted(projects.items()):
-			<h2>${project}</h2>
-			% for directory in sorted(directories):
-				<dl class="mt-tests">
-					<dt>${directory['subdir']}</dt>
-					<dd>
-						<ul>
-							% for file_path, file_title in sorted(directory['file_dict'].items()):
-								<%
-									klass = ""
-									if file_path == str(current):
-										klass = "mt-selected"
-								%>
-								<li class="${klass}"><span></span><a href="/test/${file_path}">${file_title}</a></li>
-								% endfor
-						</ul>
-					</dd>
-				</dl>
+		% if projects is not None:
+			% for project, directories in sorted(projects.items()):
+				<h2>${project}</h2>
+				% for directory in sorted(directories):
+					<dl class="mt-tests">
+						<dt>${directory['subdir']}</dt>
+						<dd>
+							<ul>
+								% for file_path, file_title in sorted(directory['file_dict'].items(), key=lambda x: x[1].lower()):
+									<%
+										klass = ""
+										if file_path == str(current):
+											klass = "mt-selected"
+									%>
+									<li class="${klass}"><span></span><a href="/test/${file_path}">${file_title}</a></li>
+									% endfor
+							</ul>
+						</dd>
+					</dl>
+				% endfor
 			% endfor
-		% endfor
+		% endif
 	</div>
 	<div id="mt-content_header">
 		<h2>${title}</h2>
@@ -140,6 +142,11 @@
 		% endif
 		% if next:
 		<a class="mt-next minibutton btn-right" href="/test${next}"><span><span class="icon"></span>next (${next_name})</span></a>
+		% endif
+		% if view == 'test' and test:
+		  <a class="btn-source minibutton" href="/source/${current}"><span><span class="icon"></span>view source</span></a>
+		% elif view == 'source':
+		  <a class="btn-left minibutton" href="/test/${current}"><span><span class="icon"></span>back to test</span></a>
 		% endif
 		</div>
 	</div>
