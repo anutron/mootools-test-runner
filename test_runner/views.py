@@ -34,7 +34,8 @@ def index(request):
       'title_prefix': settings.TITLE_PREFIX,
       'current': None,
       'next': None,
-      'previous': None
+      'previous': None,
+      'excluded_tests': get_excluded_tests()
     }
   )
 
@@ -317,8 +318,15 @@ def test(request):
       'prev_name':prev_name,
       'next': next,
       'next_name':next_name,
+      'excluded_tests': get_excluded_tests(),
     }
   )
+
+def get_excluded_tests():
+  excluded_tests = []
+  if hasattr(settings,'EXCLUDED_TESTS'):
+    excluded_tests = settings.EXCLUDED_TESTS
+  return excluded_tests
 
 HTML_MATCHER = re.compile("\.(html|mako)$")
 

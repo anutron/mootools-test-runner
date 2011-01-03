@@ -1,7 +1,7 @@
 <%!
 	from django.core.urlresolvers import reverse
 %>
-<%def name="header(title='MooTools Test Framework', projects=False, current=None, previous=None, next=None)">
+<%def name="header(title='MooTools Test Framework', projects=False, current=None, previous=None, next=None, excluded_tests=None)">
 	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 	<html>
 		<head>
@@ -94,7 +94,7 @@
 		</head>
 		<body class="not_loaded">
 		
-			${nav(title=title, projects=projects, current=current, previous=previous, next=next)}
+			${nav(title=title, projects=projects, current=current, previous=previous, next=next, excluded_tests=excluded_tests)}
 			<div id="mt-content">
 				<div id="mt-loading">Loading scripts...</div>
 </%def>
@@ -108,29 +108,31 @@
 	</html>
 </%def>
 
-<%def name="nav(title, projects=None, current=None, previous=None, next=None, view='test')">
+<%def name="nav(title, projects=None, current=None, previous=None, next=None, view='test', excluded_tests=None)">
 	<div id="mt-nav">
 		<h1><a href="/">${title_prefix}</a></h1>
 		% if projects is not None:
 			% for project, directories in sorted(projects.items()):
-				<h2>${project}</h2>
-				% for directory in sorted(directories):
-					<dl class="mt-tests">
-						<dt>${directory['subdir']}</dt>
-						<dd>
-							<ul>
-								% for file_path, file_title in sorted(directory['file_dict'].items(), key=lambda x: x[1].lower()):
-									<%
-										klass = ""
-										if file_path == str(current):
-											klass = "mt-selected"
-									%>
-									<li class="${klass}"><span></span><a href="/test/${file_path}">${file_title}</a></li>
-									% endfor
-							</ul>
-						</dd>
-					</dl>
-				% endfor
+				% if project not in excluded_tests:
+					<h2>${project}</h2>
+					% for directory in sorted(directories):
+						<dl class="mt-tests">
+							<dt>${directory['subdir']}</dt>
+							<dd>
+								<ul>
+									% for file_path, file_title in sorted(directory['file_dict'].items(), key=lambda x: x[1].lower()):
+										<%
+											klass = ""
+											if file_path == str(current):
+												klass = "mt-selected"
+										%>
+										<li class="${klass}"><span></span><a href="/test/${file_path}">${file_title}</a></li>
+										% endfor
+								</ul>
+							</dd>
+						</dl>
+					% endfor
+				% endif
 			% endfor
 		% endif
 	</div>
@@ -144,9 +146,9 @@
 		<a class="mt-next minibutton btn-right" href="/test${next}"><span><span class="icon"></span>next (${next_name})</span></a>
 		% endif
 		% if view == 'test' and test:
-		  <a class="btn-source minibutton" href="/source/${current}"><span><span class="icon"></span>view source</span></a>
+			<a class="btn-source minibutton" href="/source/${current}"><span><span class="icon"></span>view source</span></a>
 		% elif view == 'source':
-		  <a class="btn-left minibutton" href="/test/${current}"><span><span class="icon"></span>back to test</span></a>
+			<a class="btn-left minibutton" href="/test/${current}"><span><span class="icon"></span>back to test</span></a>
 		% endif
 		</div>
 	</div>

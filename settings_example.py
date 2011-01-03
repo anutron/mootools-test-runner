@@ -67,6 +67,8 @@ MOOTOOLS_TEST_LOCATIONS = {
   "more": os.path.abspath(os.path.join(os.path.dirname(__file__), "ext", "more", "Tests"))
 }
 
+EXCLUDED_TESTS = ["more"]
+
 MAKO_TEMPLATE_DIRS = (
   os.path.abspath(os.path.join(os.path.dirname(__file__), "test_runner", "templates")),
 )
