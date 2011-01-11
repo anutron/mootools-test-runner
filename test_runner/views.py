@@ -300,7 +300,8 @@ def test(request):
       get_var = request.REQUEST.get,
       get_list = request.REQUEST.getlist,
       request_path = request.path,
-      get_request = lambda: request
+      get_request = lambda: request,
+      get_asset_url = get_asset_url
     )
   else:
     source = test_source
@@ -321,6 +322,10 @@ def test(request):
       'excluded_tests': get_excluded_tests(),
     }
   )
+
+def get_asset_url(project, path):
+  return "/asset/" + project + "/" + path
+
 
 def get_excluded_tests():
   excluded_tests = []
