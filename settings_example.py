@@ -67,7 +67,11 @@ MOOTOOLS_TEST_LOCATIONS = {
   "more": os.path.abspath(os.path.join(os.path.dirname(__file__), "ext", "more", "Tests"))
 }
 
-EXCLUDED_TESTS = ["more"]
+# You can exclude tests listed in the locations list above by
+# adding them to this array. This is useful when you wish to
+# reference assets in one test group from another but don't
+# want the tests listed in the menu.
+EXCLUDED_TESTS = []
 
 MAKO_TEMPLATE_DIRS = (
   os.path.abspath(os.path.join(os.path.dirname(__file__), "test_runner", "templates")),
