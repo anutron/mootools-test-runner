@@ -39,14 +39,29 @@ def index(request):
     }
   )
 
+def specs(request):
+  return render_to_response('specs.mako', {
+        'title': settings.TITLE_PREFIX,
+        'specs_packages': ','.join(settings.MOOTOOLS_SPECS_AND_BENCHMARKS)
+      })
+def moorunner(request, path):
+  return read_asset(os.path.normpath(settings.MOOTOOLS_RUNNER_PATH + '/' + path))
+
 def asset(request, project, path):
   project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
   full_path = os.path.normpath(project_dir + "/_assets/" + path)
-  if not os.path.isfile(full_path):
+  return read_asset(path)
+
+def generic_asset(request, path):
+  if (hasattr(settings,'GENERIC_ASSETS') and settings.GENERIC_ASSETS[path] is not None):
+    return read_asset(os.path.normpath(settings.GENERIC_ASSETS[path]))
+  else:
+    raise Exception
+
+def read_asset(path):
+  if not os.path.isfile(path):
     raise Exception("The path %s was not found." % path)
-
-
-  data = open(full_path, "rb").read()
+  data = open(path, "rb").read()
   if re.search("html$(?i)", path):
     return HttpResponse(data, mimetype="text/html")
   if re.search("png$(?i)", path):
@@ -63,8 +78,8 @@ def asset(request, project, path):
     return HttpResponse(data, mimetype="video/x-flv")
   if re.search("swf$(?i)", path):
     return HttpResponse(data, mimetype="application/x-shockwave-flash")
-  
   raise Exception("Unknown asset type (currently only html/png/gif/jpg/css/js are supported).")
+
 
 # the following ajax responses borrowed from MooShell - thx Piotr!
 def echo_js(req):
@@ -334,6 +349,7 @@ def get_excluded_tests():
   return excluded_tests
 
 HTML_MATCHER = re.compile("\.(html|mako)$")
+JS_MATCHER = re.compile("\.(js)$")
 
 def get_url(test):
   project_dir = settings.MOOTOOLS_TEST_LOCATIONS[test['project']]
@@ -363,6 +379,14 @@ def get_files():
               filename=filename
             )
   return dirs, file_map
+
+def get_js_in_dir_tree(directory):
+  js = []
+  for root, subdirs, files in os.walk(directory):
+    js.extend([os.path.join(directory, name) for name in os.listdir(os.path.join(directory)) if JS_MATCHER.search(name)])
+    for subdir in subdirs:
+      js.extend(get_js_in_dir_tree(os.path.join(directory, subdir)))
+  return js
 
 def get_file_dict(files, directory, project):
   return dict([(make_url(file.replace(directory, ''), project), make_title(file.split('/')[-1])) for file in files])
