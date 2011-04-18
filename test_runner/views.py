@@ -39,10 +39,18 @@ def index(request):
     }
   )
 
-def specs(request):
+def choose_specs(request):
+  specs = settings.MOOTOOLS_SPECS_AND_BENCHMARKS
+  return render_to_response('choose_specs.mako', {
+        'title': settings.TITLE_PREFIX,
+        'specs_packages': specs
+      })
+
+def run_specs(request):
+  specs = request.GET.getlist('preset')
   return render_to_response('specs.mako', {
         'title': settings.TITLE_PREFIX,
-        'specs_packages': ','.join(settings.MOOTOOLS_SPECS_AND_BENCHMARKS)
+        'specs_packages': ','.join(specs)
       })
 def moorunner(request, path):
   return read_asset(os.path.normpath(settings.MOOTOOLS_RUNNER_PATH + '/' + path))
@@ -53,7 +61,7 @@ def asset(request, project, path):
   return read_asset(path)
 
 def generic_asset(request, path):
-  if (hasattr(settings,'GENERIC_ASSETS') and settings.GENERIC_ASSETS[path] is not None):
+  if hasattr(settings,'GENERIC_ASSETS') and settings.GENERIC_ASSETS[path] is not None:
     return read_asset(os.path.normpath(settings.GENERIC_ASSETS[path]))
   else:
     raise Exception
@@ -101,7 +109,7 @@ def mootools_request_php(req):
     return HttpResponse(response, mimetype=content_types[reqtype])
   elif retrieve is not None:
     response = simplejson.dumps(simplejson.loads(retrieve))
-    return HttpResponse(response, mimetype=content_types[reqtype]);
+    return HttpResponse(response, mimetype=content_types[reqtype])
   else:
     obj = {
       'method': req.META['REQUEST_METHOD'].lower()
@@ -352,7 +360,7 @@ def test(request):
     )
   else:
     source = test_source
-  if ('test_runner_no_wrapper' in source or request.REQUEST.get('no_wrapper') == 'true'):
+  if 'test_runner_no_wrapper' in source or request.REQUEST.get('no_wrapper') == 'true':
     template = 'blank.mako'
   
   return render_to_response(template,

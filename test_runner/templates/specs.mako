@@ -12,6 +12,8 @@
 
 <!-- Specs -->
 <script type="text/javascript" src="/moorunner/Helpers/jasmine-html.js"></script>
+<script src="/static/js/query_string.js"></script>
+
 <script type="text/javascript" charset="utf-8" src="/moorunner/Helpers/Syn.js"></script>
 <script type="text/javascript" charset="utf-8" src="/moorunner/Helpers/simulateEvent.js"></script>
 <script type="text/javascript" charset="utf-8" src="/moorunner/Helpers/JSSpecToJasmine.js"></script>
