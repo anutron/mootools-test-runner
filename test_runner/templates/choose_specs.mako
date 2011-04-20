@@ -14,13 +14,15 @@
 <body>
   <div style="margin: 20px">
     <p>Choose the specs you wish to run:</p>
-    <form method="get" action="/run_specs">
+    <form method="get">
       <ul>
         % for package in specs_packages:
           <li><input name="preset" value="${package}" type="checkbox" checked="checked">${package}</li>
         % endfor
       </ul>
       <input type="submit"/>
+      <hr/>
+      <button name="preset" value="all">Run all specs</button>
     </form>
   </div>
 </body>

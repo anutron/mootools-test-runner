@@ -9,7 +9,7 @@ import random
 import mako
 from mako.template import Template
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from markdown import markdown
 from urllib import quote
 
@@ -39,19 +39,22 @@ def index(request):
     }
   )
 
-def choose_specs(request):
+def specs(request):
   specs = settings.MOOTOOLS_SPECS_AND_BENCHMARKS
-  return render_to_response('choose_specs.mako', {
-        'title': settings.TITLE_PREFIX,
-        'specs_packages': specs
-      })
+  if request.GET.get('preset') is None:
+    return render_to_response('choose_specs.mako', {
+          'title': settings.TITLE_PREFIX,
+          'specs_packages': specs
+        })
+  else:
+    presets = request.GET.getlist('preset')
+    if 'all' not in presets:
+      specs = presets
+    return render_to_response('specs.mako', {
+          'title': settings.TITLE_PREFIX,
+          'specs_packages': ','.join(specs)
+        })
 
-def run_specs(request):
-  specs = request.GET.getlist('preset')
-  return render_to_response('specs.mako', {
-        'title': settings.TITLE_PREFIX,
-        'specs_packages': ','.join(specs)
-      })
 def moorunner(request, path):
   return read_asset(os.path.normpath(settings.MOOTOOLS_RUNNER_PATH + '/' + path))
 
