@@ -32,9 +32,9 @@ window.onload = function(){
 
 })();
 </script>
-<script type="text/javascript" src="/depender/build?requireLibs=${specs_packages}"></script>
 <title>Specs for ${title}</title>
 </head>
 <body>
+  <script type="text/javascript" src="/depender/build?requireLibs=${specs_packages}"></script>
 </body>
 </html>
