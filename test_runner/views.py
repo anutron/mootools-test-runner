@@ -24,7 +24,7 @@ import yaml
 
 
 def index(request):
-  projects, dir_map = get_files()
+  projects, dir_map = get_files(settings.MOOTOOLS_TEST_LOCATIONS, HTML_MATCHER, url_maker=make_url)
   welcome_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "WELCOME.md"))
   welcome = open(welcome_file, 'rb').read()
   return render_to_response('index.mako', 
@@ -60,6 +60,8 @@ def moorunner(request, path):
 
 def asset(request, project, path):
   project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
+  if '..' in path:
+    raise Exception("The path %s is invalid." % path)
   full_path = os.path.normpath(project_dir + "/_assets/" + path)
   return read_asset(path)
 
@@ -67,11 +69,11 @@ def generic_asset(request, path):
   if hasattr(settings,'GENERIC_ASSETS') and settings.GENERIC_ASSETS[path] is not None:
     return read_asset(os.path.normpath(settings.GENERIC_ASSETS[path]))
   else:
-    raise Exception
+    raise Exception("The asset for %s was not found." % path)
 
 def read_asset(path):
   if not os.path.isfile(path):
-    raise Exception("The path %s was not found." % path)
+    raise Exception("The file was not found." % path)
   data = open(path, "rb").read()
   if re.search("html$(?i)", path):
     return HttpResponse(data, mimetype="text/html")
@@ -234,7 +236,7 @@ def view_source(request):
   if project is None or path is None:
     raise Exception("You must specify a project and a path.")
 
-  projects, dir_map = get_files()
+  projects, dir_map = get_files(location=settings.MOOTOOLS_TEST_LOCATIONS, matcher=HTML_MATCHER, url_maker=make_url)
   project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
   full_path = os.path.normpath(project_dir+path)
 
@@ -296,7 +298,7 @@ def format_code(extension, code_str):
 
 
 def test(request):
-  projects, dir_map = get_files()
+  projects, dir_map = get_files(location=settings.MOOTOOLS_TEST_LOCATIONS, matcher=HTML_MATCHER, url_maker=make_url)
   project = request.REQUEST.get('project')
   path = request.REQUEST.get('path')
   sleeper(request)
@@ -392,6 +394,7 @@ def get_excluded_tests():
   return excluded_tests
 
 HTML_MATCHER = re.compile("\.(html|mako)$")
+MARKDOWN_MATCHER = re.compile("\.(markdown|md)$")
 JS_MATCHER = re.compile("\.(js)$")
 
 def get_url(test):
@@ -399,21 +402,39 @@ def get_url(test):
   path = test['filename'].replace(project_dir, '')
   return make_url(path, test['project'])
 
-def get_files():
+def get_files(location, matcher, url_maker, file_title_expr='(\.|_)', dir_title_expr='(\.|_)'):
   dirs = dict()
   file_map = dict()
-  for project, directory in settings.MOOTOOLS_TEST_LOCATIONS.iteritems():
+  def get_appropriate_files(path):
+    return [os.path.join(path, name) for name in os.listdir(path) if matcher.search(name)]
+
+  for project, directory in location.iteritems():
     files = []
-    project_as_title = make_title(project)
+    project_as_title = make_title(project, dir_title_expr)
     dirs[project_as_title] = []
+
+    rootfiles = get_appropriate_files(os.path.join(directory))
+    if len(rootfiles) > 0:
+      dirs[project_as_title].append(dict(
+        subdir='__root',
+        files=rootfiles,
+        file_dict=get_file_dict(rootfiles, directory, project, url_maker)
+      ))
+      for filename in rootfiles:
+        file_map[filename] = dict(
+          project=project_as_title,
+          subdir='__root',
+          filename=filename
+        )
+
     for root, subdirs, files in os.walk(directory):
       for subdir in subdirs:
         if subdir != "_assets":
-          testfiles = [os.path.join(directory, subdir, name) for name in os.listdir(os.path.join(directory, subdir)) if HTML_MATCHER.search(name)]
+          testfiles = get_appropriate_files(os.path.join(directory, subdir))
           dirs[project_as_title].append(dict(
-            subdir=make_title(subdir),
+            subdir=make_title(subdir, dir_title_expr),
             files=testfiles,
-            file_dict=get_file_dict(testfiles, directory, project)
+            file_dict=get_file_dict(testfiles, directory, project, url_maker)
           ))
           for filename in testfiles:
             file_map[filename] = dict(
@@ -431,11 +452,58 @@ def get_js_in_dir_tree(directory):
       js.extend(get_js_in_dir_tree(os.path.join(directory, subdir)))
   return js
 
-def get_file_dict(files, directory, project):
-  return dict([(make_url(file.replace(directory, ''), project), make_title(file.split('/')[-1])) for file in files])
+def get_file_dict(files, directory, project, url_maker):
+  return dict([(url_maker(file.replace(directory, ''), project), make_title(file.split('/')[-1])) for file in files])
 
 def make_url(path, project):
-  return '?project='+quote(project)+'&path='+path
+  return '/test/?project='+quote(project)+'&path='+path
 
-def make_title(path):
-  return re.sub('(\.|_)', ' ', re.sub('(\.(html|mako))', '', path))
+def make_title(path, expr='(\.|_)'):
+  return re.sub(expr, ' ', re.sub('(\.(html|mako|md|markdown))', '', path))
+
+def docs_url(path, project):
+  root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+  project_path = settings.DOCS[project]
+  docs_path = project_path.replace(root, '')
+  return os.path.normpath('/docs/' + docs_path + path);
+
+def docs(request, path):
+  if path == '':
+    path = "test-runner/WELCOME"
+  if not re.search("md$(?i)", path):
+    path = path + '.md'
+  text = None
+  if '..' in path:
+    raise Exception('invalid path: %s' % path)
+  else:
+    md = os.path.abspath(os.path.join(settings.DOC_ROOT, path))
+    if os.path.isfile(md):
+      text = open(md, 'rb').read()
+  if text is None:
+    raise Exception("The path %s was not found." % path)
+  else:
+    parsed = markdown(text)
+    dirs, files = get_files(location=settings.DOCS, matcher=MARKDOWN_MATCHER, url_maker=docs_url, file_title_expr='(\|_)')
+    
+    toc = []
+    
+    def replacer(matchobj):
+      match = matchobj.group(0)
+      match = re.sub('\{#|}', '', match)
+      toc.append(match)
+      return '<a class="toc_anchor" name="' + match + '"></a><a href="#top" class="to_top">back to top</a>'
+      
+    parsed = re.sub("\{#.*?}", replacer, parsed)
+    
+    return render_to_response('markdown.mako', 
+      {
+        'body': parsed,
+        'docs': files,
+        'title': make_title(path.split('/')[-1]),
+        'title_prefix': settings.TITLE_PREFIX,
+        'current': 'docs/' + path,
+        'dirs': dirs,
+        'toc': toc
+      }
+    )
+    

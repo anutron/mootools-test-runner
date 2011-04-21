@@ -92,4 +92,13 @@ GENERIC_ASSETS = {
   'jsonp.js': os.path.abspath(os.path.join(os.path.dirname(__file__), "../", "more", "Specs", "assets", "jsonp.js")),
 }
 
+# heighest level directory that markdown files can be read from
+DOC_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+# where to look for doc files
+DOCS = {
+  "Clientcide": os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "clientcide", "Docs")),
+  "Behavior": os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "behavior", "Docs")),
+  "MooTools More": os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "more", "Docs")),
+}
+
 TITLE_PREFIX = 'MooTools Tests'

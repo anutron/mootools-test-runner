@@ -360,3 +360,36 @@ body.loaded #mt-loading {
 .view_source .highlight .vg { color: #19177C } /* Name.Variable.Global */
 .view_source .highlight .vi { color: #19177C } /* Name.Variable.Instance */
 .view_source .highlight .il { color: #666666 } /* Literal.Number.Integer.Long */
+
+
+/* docs */
+#mt-nav ul li.toc {
+	margin-left: 20px;
+}
+#mt-nav ul li.toc a {
+	color: #5B618F;
+	font-size: 10px;
+	display: block;
+	text-indent: 0;
+}
+#mt-nav ul li.toc_section a {
+	font-weight: bold;
+	border-bottom: 1px solid #5B618F;
+}
+div.markdown pre {
+	margin-left: 25px;
+}
+div.markdown * {
+	position: relative;
+}
+.toc_anchor {
+	position: absolute;
+	top: -30px;
+}
+div.markdown a.to_top {
+	font-size: 10px;
+	position: absolute;
+	right: 10px;
+	bottom: 0px;
+	text-decoration: none;
+}

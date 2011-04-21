@@ -9,8 +9,10 @@ urlpatterns = patterns('test_runner.views',
     (r'^Helpers/request.php$', 'mootools_request_php'),
     (r'^assets/(?P<path>.*)$', 'generic_asset'),
     (r'^source/', 'view_source'),
+    (r'^docs/(?P<path>.*)$', 'docs'),
     (r'^asset/(?P<project>\w+)/(?P<path>.*)$', 'asset'),
     (r'^depender/', include('depender.urls')),
+
     # Echo
     url(r'^echo/js/$','echo_js', name='echo_js'),
     url(r'^echo/json/$','echo_json', name='echo_json'),
