@@ -62,6 +62,13 @@ def specs(request):
 def moorunner(request, path):
   return read_asset(os.path.normpath(settings.MOOTOOLS_RUNNER_PATH + '/' + path))
 
+def get_source_file(request, project, path):
+  if '..' in path:
+    raise Exception("The path %s is invalid." % path)
+  full_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", project, "Source", path))
+  return read_asset(full_path)
+
+
 def asset(request, project, path):
   project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
   if '..' in path:
@@ -89,6 +96,7 @@ def read_asset(path):
     "jpg": "image/jpg",
     "gif": "image/gif",
     "css": "text/css",
+    "less": "text/less",
     "js": "application/x-javascript",
     "flv": "video/x-flv",
     "swf": "application/x-shockwave-flash"

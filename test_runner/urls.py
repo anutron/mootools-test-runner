@@ -10,6 +10,7 @@ urlpatterns = patterns('test_runner.views',
     (r'^assets/(?P<path>.*)$', 'generic_asset'),
     (r'^source/', 'view_source'),
     (r'^docs/(?P<path>.*)$', 'docs'),
+    (r'^get_source_file/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'get_source_file'),
     (r'^asset/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'asset'),
     (r'^depender/', include('depender.urls')),
 
