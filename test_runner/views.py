@@ -22,6 +22,10 @@ from pygments.token import Name
 import yaml
 
 
+HTML_MATCHER = re.compile("\.(html|mako)$")
+MARKDOWN_MATCHER = re.compile("\.(markdown|md)$")
+JS_MATCHER = re.compile("\.(js)$")
+
 
 def index(request):
   projects, dir_map = get_files(settings.MOOTOOLS_TEST_LOCATIONS, HTML_MATCHER, url_maker=make_url)
@@ -65,6 +69,9 @@ def asset(request, project, path):
   full_path = os.path.normpath(project_dir + "/_assets/" + path)
   return read_asset(path)
 
+def assets(request, project, path):
+  return asset(request, project, path)
+
 def generic_asset(request, path):
   if hasattr(settings,'GENERIC_ASSETS') and settings.GENERIC_ASSETS[path] is not None:
     return read_asset(os.path.normpath(settings.GENERIC_ASSETS[path]))
@@ -75,22 +82,21 @@ def read_asset(path):
   if not os.path.isfile(path):
     raise Exception("The file was not found." % path)
   data = open(path, "rb").read()
-  if re.search("html$(?i)", path):
-    return HttpResponse(data, mimetype="text/html")
-  if re.search("png$(?i)", path):
-    return HttpResponse(data, mimetype="image/png")
-  if re.search("jpg$(?i)", path):
-    return HttpResponse(data, mimetype="image/jpg")
-  if re.search("gif$(?i)", path):
-    return HttpResponse(data, mimetype="image/gif")
-  if re.search("css$(?i)", path):
-    return HttpResponse(data, mimetype="text/css")
-  if re.search("js$(?i)", path):
-    return HttpResponse(data, mimetype="application/x-javascript")
-  if re.search("flv$(?i)", path):
-    return HttpResponse(data, mimetype="video/x-flv")
-  if re.search("swf$(?i)", path):
-    return HttpResponse(data, mimetype="application/x-shockwave-flash")
+  
+  content_types = {
+    "html": "text/html",
+    "png": "image/png",
+    "jpg": "image/jpg",
+    "gif": "image/gif",
+    "css": "text/css",
+    "js": "application/x-javascript",
+    "flv": "video/x-flv",
+    "swf": "application/x-shockwave-flash"
+  }
+  for extension, content_type in content_types.iteritems():
+    if re.search(extension + "$(?i)", path):
+      return HttpResponse(data, mimetype = content_type)
+  
   raise Exception("Unknown asset type (currently only html/png/gif/jpg/css/js are supported).")
 
 
@@ -236,18 +242,15 @@ def view_source(request):
   if project is None or path is None:
     raise Exception("You must specify a project and a path.")
 
-  projects, dir_map = get_files(location=settings.MOOTOOLS_TEST_LOCATIONS, matcher=HTML_MATCHER, url_maker=make_url)
+  projects, dir_map = get_test_files()
   project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
   full_path = os.path.normpath(project_dir+path)
 
   file_path, extension = os.path.splitext(path)
   try:
-    data = format_code(extension, file(full_path).read())
+    data = format_code(extension[1:], file(full_path).read())
   except OSError, ex:
     raise Exception("Cannot read requested gallery template: %s" % (path,))
-
-
-
 
   # Load the js references
   js_data = { }         # map of { name: js content }
@@ -262,7 +265,7 @@ def view_source(request):
           raise Exception('Invalid line "%s" in file %s' % (ref, yml_file))
         try:
           file_data = dep.get((js_pkg, js_comp))
-          js_data[ref] = format_code('.js', file_data.content)
+          js_data[ref] = format_code('js', file_data.content)
         except:
           raise Exception(
             'Cannot locate "%s" package "%s" component' % (js_pkg, js_comp))
@@ -270,7 +273,7 @@ def view_source(request):
       LOG.warn('%s does not have a "js-references" section' % (yml_file,))
 
   return render_to_response('view_source.mako',
-      {
+    {
       'data': data,
       'js_data': js_data,
       'title': make_title(path.split('/')[-1]),
@@ -280,17 +283,11 @@ def view_source(request):
     }
   )
 
-_LEXER_MAP = {
-  '.html': get_lexer_by_name('html', tabsize=2),
-  '.js': get_lexer_by_name('js', tabsize=2),
-  '.mako': get_lexer_by_name('mako', tabsize=2),
-}
-
 
 def format_code(extension, code_str):
   """Fix indent and highlight code"""
   try:
-    lexer = _LEXER_MAP[extension]
+    lexer = get_lexer_by_name('html', tabsize=2)
     return highlight(code_str, lexer, HtmlFormatter())
   except KeyError:
     LOG.warn('Cannot find lexer for extension %s' % (extension,))
@@ -298,12 +295,13 @@ def format_code(extension, code_str):
 
 
 def test(request):
-  projects, dir_map = get_files(location=settings.MOOTOOLS_TEST_LOCATIONS, matcher=HTML_MATCHER, url_maker=make_url)
   project = request.REQUEST.get('project')
   path = request.REQUEST.get('path')
   sleeper(request)
   if project is None or path is None:
     raise Exception("You must specify a project and a path.")
+  
+  projects, dir_map = get_test_files()
   
   project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
   full_path = os.path.normpath(project_dir+path)
@@ -369,7 +367,7 @@ def test(request):
     template = 'blank.mako'
   
   return render_to_response(template,
-      {
+    {
       'test': source,
       'title': make_title(path.split('/')[-1]),
       'current': make_url(path, project),
@@ -393,56 +391,71 @@ def get_excluded_tests():
     excluded_tests = settings.EXCLUDED_TESTS
   return excluded_tests
 
-HTML_MATCHER = re.compile("\.(html|mako)$")
-MARKDOWN_MATCHER = re.compile("\.(markdown|md)$")
-JS_MATCHER = re.compile("\.(js)$")
-
 def get_url(test):
   project_dir = settings.MOOTOOLS_TEST_LOCATIONS[test['project']]
   path = test['filename'].replace(project_dir, '')
   return make_url(path, test['project'])
 
-def get_files(location, matcher, url_maker, file_title_expr='(\.|_)', dir_title_expr='(\.|_)'):
-  dirs = dict()
-  file_map = dict()
-  def get_appropriate_files(path):
-    return [os.path.join(path, name) for name in os.listdir(path) if matcher.search(name)]
+def get_files_by_project(project, directory, matcher, url_maker, dirs = None, file_map = None):
+  if dirs is None:
+    dirs = {}
+  if file_map is None:
+    file_map = {}
+  def get_file_dict(files, directory):
+    return dict([(url_maker(file.replace(directory, ''), project), make_title(file.split('/')[-1])) for file in files])
 
-  for project, directory in location.iteritems():
-    files = []
-    project_as_title = make_title(project, dir_title_expr)
-    dirs[project_as_title] = []
-
-    rootfiles = get_appropriate_files(os.path.join(directory))
-    if len(rootfiles) > 0:
-      dirs[project_as_title].append(dict(
-        subdir='__root',
-        files=rootfiles,
-        file_dict=get_file_dict(rootfiles, directory, project, url_maker)
+  def match_files(current_dir, recurse=True):
+    matching_files = []
+    for entry in os.listdir(current_dir):
+      if entry != "_assets":
+        path = os.path.join(current_dir, entry)
+        if os.path.isdir(path):
+          if recurse:
+            match_files(path, recurse)
+        elif matcher.search(entry):
+          matching_files.append(path)
+          file_map[path] = dict(
+            project = project_title,
+            subdir = current_dir,
+            filename = path
+          )
+    
+    if len(matching_files) > 0:
+      dirs[project_title].append(dict(
+        subdir = current_dir,
+        title = make_title(current_dir.split('/')[-1]),
+        files = matching_files,
+        file_dict = get_file_dict(matching_files, directory)
       ))
-      for filename in rootfiles:
-        file_map[filename] = dict(
-          project=project_as_title,
-          subdir='__root',
-          filename=filename
-        )
-
-    for root, subdirs, files in os.walk(directory):
-      for subdir in subdirs:
-        if subdir != "_assets":
-          testfiles = get_appropriate_files(os.path.join(directory, subdir))
-          dirs[project_as_title].append(dict(
-            subdir=make_title(subdir, dir_title_expr),
-            files=testfiles,
-            file_dict=get_file_dict(testfiles, directory, project, url_maker)
-          ))
-          for filename in testfiles:
-            file_map[filename] = dict(
-              project=project_as_title,
-              subdir=subdir,
-              filename=filename
-            )
+  
+  project_title = make_title(project)
+  dirs[project_title] = []
+  
+  match_files('.', recurse=False)
+  match_files(directory)
   return dirs, file_map
+  
+
+def get_files(locations, matcher, url_maker):
+  dirs = {}
+  file_map = {}
+  
+  for project, directory in locations.iteritems():
+    get_files_by_project(project, directory, matcher, url_maker, dirs, file_map)
+    
+  return dirs, file_map
+
+def get_test_files(project = None):
+  if project:
+    return get_files_by_project(project, settings.MOOTOOLS_TEST_LOCATIONS[project],
+      matcher=HTML_MATCHER, url_maker=make_url)
+  return get_files(locations=settings.MOOTOOLS_TEST_LOCATIONS, matcher=HTML_MATCHER, url_maker=make_url)
+
+def get_docs_files(project):
+  if project:
+    return get_files_by_project(project, settings.DOCS[project],
+      matcher=MARKDOWN_MATCHER, url_maker=docs_url)
+  get_files(locations=settings.DOCS, matcher=MARKDOWN_MATCHER, url_maker=docs_url)
 
 def get_js_in_dir_tree(directory):
   js = []
@@ -452,14 +465,11 @@ def get_js_in_dir_tree(directory):
       js.extend(get_js_in_dir_tree(os.path.join(directory, subdir)))
   return js
 
-def get_file_dict(files, directory, project, url_maker):
-  return dict([(url_maker(file.replace(directory, ''), project), make_title(file.split('/')[-1])) for file in files])
-
 def make_url(path, project):
   return '/test/?project='+quote(project)+'&path='+path
 
-def make_title(path, expr='(\.|_)'):
-  return re.sub(expr, ' ', re.sub('(\.(html|mako|md|markdown))', '', path))
+def make_title(path):
+  return re.sub('[\._]', ' ', re.sub('(\.(html|mako|md|markdown))', '', path))
 
 def docs_url(path, project):
   root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -483,7 +493,7 @@ def docs(request, path):
     raise Exception("The path %s was not found." % path)
   else:
     parsed = markdown(text)
-    dirs, files = get_files(location=settings.DOCS, matcher=MARKDOWN_MATCHER, url_maker=docs_url, file_title_expr='(\|_)')
+    dirs, files = get_docs_files()
     
     toc = []
     

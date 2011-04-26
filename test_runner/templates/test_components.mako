@@ -117,8 +117,8 @@
           <h2>${project}</h2>
           % for directory in sorted(directories):
             <dl class="mt-tests">
-              % if directory['subdir'] != '__root':
-                <dt>${directory['subdir']}</dt>
+              % if directory['subdir'] != '.':
+                <dt>${directory['title']}</dt>
               % endif
               <dd>
                 <ul>
