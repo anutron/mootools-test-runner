@@ -67,7 +67,7 @@ def asset(request, project, path):
   if '..' in path:
     raise Exception("The path %s is invalid." % path)
   full_path = os.path.normpath(project_dir + "/_assets/" + path)
-  return read_asset(path)
+  return read_asset(full_path)
 
 def assets(request, project, path):
   return asset(request, project, path)
@@ -80,7 +80,7 @@ def generic_asset(request, path):
 
 def read_asset(path):
   if not os.path.isfile(path):
-    raise Exception("The file was not found." % path)
+    raise Exception("The file %s was not found." % path)
   data = open(path, "rb").read()
   
   content_types = {
