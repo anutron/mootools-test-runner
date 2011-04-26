@@ -459,11 +459,11 @@ def get_test_files(project = None):
       matcher=HTML_MATCHER, url_maker=make_url)
   return get_files(locations=settings.MOOTOOLS_TEST_LOCATIONS, matcher=HTML_MATCHER, url_maker=make_url)
 
-def get_docs_files(project):
+def get_docs_files(project=None):
   if project:
     return get_files_by_project(project, settings.DOCS[project],
       matcher=MARKDOWN_MATCHER, url_maker=docs_url)
-  get_files(locations=settings.DOCS, matcher=MARKDOWN_MATCHER, url_maker=docs_url)
+  return get_files(locations=settings.DOCS, matcher=MARKDOWN_MATCHER, url_maker=docs_url)
 
 def get_js_in_dir_tree(directory):
   js = []
