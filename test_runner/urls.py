@@ -10,7 +10,7 @@ urlpatterns = patterns('test_runner.views',
     (r'^assets/(?P<path>.*)$', 'generic_asset'),
     (r'^source/', 'view_source'),
     (r'^docs/(?P<path>.*)$', 'docs'),
-    (r'^asset/(?P<project>\w+)/(?P<path>.*)$', 'asset'),
+    (r'^asset/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'asset'),
     (r'^depender/', include('depender.urls')),
 
     # Echo
