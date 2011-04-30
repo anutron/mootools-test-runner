@@ -31,7 +31,7 @@
         });
         var filter = $('filter');
         var ac = new Autocompleter.Local(filter, terms, {
-          width: 153,
+          width: 166,
           minLength: 1,
           selectMode: 'type-ahead',
           overflow: true,
@@ -54,15 +54,16 @@
             filter.blur.delay(20, $('filter'));
           }
         });
+        filter.addEvent('blur', function(){
+          filter.value = '';
+        });
       });
     </script>
   </head>
   <body>
+    <h1>${title}</h1>
     <div class="mt-nav">
-      <h1>
-        ${title}
-        <div id="filter_wrapper"><input id="filter" title="Search"></div>
-      </h1>
+      <div id="filter_wrapper"><input id="filter" title="Search"></div>
       % if projects is not None:
         % for project, directories in sorted(projects.items()):
           % if not excluded_tests or project not in excluded_tests:

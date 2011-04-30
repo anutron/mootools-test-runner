@@ -6,24 +6,17 @@ div.mt-nav {
 	margin: 0px 8px 0 8px;
 }
 h1 {
-	font-size: 14px;
-	padding: 8px;
-	background: #D3E0ED;
-	font-weight: bold;
-	position: relative;
-	margin: 0px -8px 8px;
-	border-bottom: 1px solid #aaa;
-}
-h1 a, h1 a:hover {
+	background: #465a73;
 	color: #fff;
-	text-decoration: none;
-	display: block;
+	font-size: 16px;
+	font-weight: bold;
+	padding: 4px;
+	margin: 0;
 }
 h2 {
 	font-weight: bold;
 	font-size: 14px;
 }
-
 dl {
 	margin-top: 6px;
 }
@@ -68,6 +61,14 @@ a:hover {
 	color: #00E;
 }
 
+#filter_wrapper {
+	font-size: 14px;
+	background: #D3E0ED;
+	font-weight: bold;
+	position: relative;
+	margin: 0px -8px 8px;
+	border-bottom: 1px solid #aaa;
+}
 #filter {
 	background-color: #D3E0ED;
 	background-image: url("../art/search.png");
@@ -79,7 +80,8 @@ a:hover {
 	margin-left: 3px;
 	padding-left: 24px;
 	padding-right: 7px;
-	width: 144px;
+	width: 158px;
+	outline: none;
 }
 label {
 	font-size: 10px;
