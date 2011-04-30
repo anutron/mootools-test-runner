@@ -1,0 +1,28 @@
+html, body{
+	background: #0069a4;
+	background: -moz-linear-gradient(top, #0069a4, #004077);
+	background: -webkit-gradient(linear, left top, left bottom, from(#0069a4), to(#004077));
+	-ms-filter:"progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr=#0069a4, EndColorStr=#004077)";
+	filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr=#0069a4, EndColorStr=#004077);
+	color: #fff;
+}
+h1 {
+	font-size: 26px;
+	font-weight: bold;
+	position: absolute;
+	margin: 2px 0 0 4px;
+	color: #fff;
+	-webkit-mask-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,1)), to(rgba(0,0,0,0.5)));
+}
+ul {
+	margin: 4px;
+	padding: 0px;
+	position: absolute;
+	right: 0px;
+}
+ul li {
+	display: inline-block;
+}
+ul li a {
+	width: 120px;
+}

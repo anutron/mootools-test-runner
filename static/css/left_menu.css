@@ -1,0 +1,106 @@
+html, body {
+	min-height: 100%;
+	background: #c6d1dd;
+}
+div.mt-nav {
+	margin: 0px 8px 0 8px;
+}
+h1 {
+	font-size: 14px;
+	padding: 8px;
+	background: #D3E0ED;
+	font-weight: bold;
+	position: relative;
+	margin: 0px -8px 8px;
+	border-bottom: 1px solid #aaa;
+}
+h1 a, h1 a:hover {
+	color: #fff;
+	text-decoration: none;
+	display: block;
+}
+h2 {
+	font-weight: bold;
+	font-size: 14px;
+}
+
+dl {
+	margin-top: 6px;
+}
+dt {
+	background: #fff;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	color: #000;
+	font-weight: bold;
+	padding: 4px;
+}
+dd {
+	margin-left: 0;
+}
+ul {
+	padding: 0;
+	margin: 8px 0 8px 2px;
+	overflow: hidden;
+}
+ul li {
+	list-style: none;
+	text-indent: -4px;
+	margin: 0 0 0 4px;
+}
+ul li.mt-selected span {
+	background: url("/static/art/minibutton_icons.png") no-repeat scroll -180px -4px transparent;
+	display: inline-block;
+	height: 12px;
+	width: 14px;
+}
+ul li.mt-selected {
+	text-indent: -14px;
+	margin: 0 0 0 14px;
+}
+ul a {
+	text-decoration: none;
+	color: #009;
+}
+a:hover {
+	text-decoration: underline;
+	color: #00E;
+}
+
+#filter {
+	background-color: #D3E0ED;
+	background-image: url("../art/search.png");
+	border-style: hidden;
+	border-width: 0;
+	color: #000000;
+	font-size: 8pt;
+	height: 29px;
+	margin-left: 3px;
+	padding-left: 24px;
+	padding-right: 7px;
+	width: 144px;
+}
+label {
+	font-size: 10px;
+	font-weight: normal;
+	color: #777;
+	position: relative;
+	margin-top: 7px;
+	margin-left: 22px;
+}
+
+/* docs */
+ul li.toc {
+	margin-left: 20px;
+}
+ul li.toc a {
+	color: #5B618F;
+	font-size: 10px;
+	display: block;
+	text-indent: 0;
+}
+ul li.toc_section a {
+	font-weight: bold;
+	border-bottom: 1px solid #5B618F;
+}

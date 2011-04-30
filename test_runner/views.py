@@ -28,25 +28,65 @@ JS_MATCHER = re.compile("\.(js)$")
 
 
 def index(request):
-  projects, dir_map = get_files(settings.MOOTOOLS_TEST_LOCATIONS, HTML_MATCHER, url_maker=make_url)
-  welcome_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "WELCOME.md"))
-  welcome = open(welcome_file, 'rb').read()
   return render_to_response('index.mako', 
     {
-      'welcome': markdown(welcome),
-      'projects': projects,
+      'title': settings.TITLE_PREFIX
+    }
+  )
+def top_nav(request):
+  return render_to_response('top_nav.mako', {
+    'title': settings.TITLE_PREFIX,
+    'show_docs': True,
+    'show_demos': True,
+    'show_specs': True,
+    'show_benchmarks': True,
+  })
+
+def bottom_frame(request):
+  menu = request.REQUEST.get('menu_path')
+  content = request.REQUEST.get('content_path')
+  return render_to_response('bottom_frame.mako', {
+    'title': settings.TITLE_PREFIX,
+    'menu': menu,
+    'content': content
+  })
+
+
+def welcome(request):
+  welcome_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "WELCOME.md"))
+  welcome = open(welcome_file, 'rb').read()
+  return render_to_response('markdown.mako', 
+    {
+      'title': 'welcome',
       'title_prefix': settings.TITLE_PREFIX,
-      'current': None,
-      'next': None,
-      'previous': None,
+      'body': markdown(welcome)
+    }
+  )
+
+def test_menu(request):
+  projects, dir_map = get_files(settings.MOOTOOLS_TEST_LOCATIONS, HTML_MATCHER, url_maker=make_url)
+  return render_to_response('left_menu.mako', 
+    {
+      'projects': projects,
+      'title': 'Demos',
       'excluded_tests': get_excluded_tests()
     }
   )
+def docs_menu(request):
+  projects, dir_map = get_docs_files()
+  return render_to_response('left_menu.mako', 
+    {
+      'projects': projects,
+      'title': 'Docs',
+    }
+  )
+
+
 
 def specs(request):
   specs = settings.MOOTOOLS_SPECS_AND_BENCHMARKS
   if request.GET.get('preset') is None:
-    return render_to_response('choose_specs.mako', {
+    return render_to_response('specs.mako', {
           'title': settings.TITLE_PREFIX,
           'specs_packages': specs
         })
@@ -56,7 +96,7 @@ def specs(request):
       specs = presets
     return render_to_response('specs.mako', {
           'title': settings.TITLE_PREFIX,
-          'specs_packages': ','.join(specs)
+          'specs': ','.join(specs)
         })
 
 def moorunner(request, path):
@@ -404,7 +444,7 @@ def get_url(test):
   path = test['filename'].replace(project_dir, '')
   return make_url(path, test['project'])
 
-def get_files_by_project(project, directory, matcher, url_maker, dirs = None, file_map = None):
+def get_files_by_project(project, directory, matcher, url_maker, dirs = None, file_map = None, include_root = None):
   if dirs is None:
     dirs = {}
   if file_map is None:
@@ -439,7 +479,8 @@ def get_files_by_project(project, directory, matcher, url_maker, dirs = None, fi
   project_title = make_title(project)
   dirs[project_title] = []
   
-  match_files('.', recurse=False)
+  if include_root is not None:
+    match_files(directory + include_root, recurse=False)
   match_files(directory)
   return dirs, file_map
   
@@ -449,7 +490,7 @@ def get_files(locations, matcher, url_maker):
   file_map = {}
   
   for project, directory in locations.iteritems():
-    get_files_by_project(project, directory, matcher, url_maker, dirs, file_map)
+    get_files_by_project(project, directory, matcher, url_maker, dirs, file_map, include_root = "/..")
     
   return dirs, file_map
 

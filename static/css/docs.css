@@ -1,0 +1,27 @@
+body {
+	background: #ddd;
+}
+img {
+	border: 1px solid #333;
+}
+div.markdown {
+	margin: 20px;
+}
+
+div.markdown pre {
+	margin-left: 25px;
+}
+div.markdown * {
+	position: relative;
+}
+.toc_anchor {
+	position: absolute;
+	top: -30px;
+}
+div.markdown a.to_top {
+	font-size: 10px;
+	position: absolute;
+	right: 10px;
+	bottom: 0px;
+	text-decoration: none;
+}

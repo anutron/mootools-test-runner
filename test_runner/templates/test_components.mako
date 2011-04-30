@@ -8,95 +8,10 @@
       <title>${title_prefix} - ${title}</title>
       <link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="screen" title="no title" charset="utf-8">
       <link rel="stylesheet" href="/static/css/tests.css" type="text/css" media="screen" title="no title" charset="utf-8">
-      <script>
-      var makeActions = function(tests){
-        try {
-          if (!$('actions')) new Element('dt', {'id': 'actions'}).inject($('mt-content'), 'top');
-          tests.each(function(test, i) {
-            new Element('dt').adopt(
-              new Element('a', {
-                text: test.title,
-                events: {
-                  click: test.fn
-                },
-                id: 'test-' + i
-              })
-            ).inject('actions');
-            if (test.description) new Element('dd', { text: test.description }).inject('actions');
-          });
-        } catch(e) {
-          alert('Could not create actions. Check console for details.');
-          console.log('Ensure you have Core/Element.Event - plus its dependencies.', e);
-        }
-      };
-      var log = function(msg) {
-        var type = function(obj){
-          if (obj == undefined) return false;
-          if (obj.nodeName){
-            switch (obj.nodeType){
-              case 1: return 'element';
-              case 3: return (/\S/).test(obj.nodeValue) ? 'textnode' : 'whitespace';
-            }
-          } else if (typeof obj.length == 'number'){
-            if (obj.callee) return 'arguments';
-          }
-          return typeof obj;
-        };
-        var parse = function(){
-          var str = '';
-          for (var i = 0; i < arguments.length; i++) {
-            var value = arguments[i];
-            switch (type(value)) {
-              case 'element':
-                str += value.tagName.toLowerCase();
-                if (value.id) str += '#' + value.id;
-                if (value.className) str += value.className.split(' ').join('.');
-                break;
-
-              case 'array':
-                str +='[';
-                var results = [];
-                for (var index = 0; index < value.length; index++) {
-                  results.push(parse(value[index]));
-                }
-                str += results.join(', ') + ']';
-                break;
-
-              case 'object':
-                var objs = [];
-                for (name in value) {
-                  if (type(value[name]) != 'object') {
-                    objs.push(name + ': ' + parse(value[name]));
-                  } else {
-                    objs.push(name + ': (object)');
-                  }
-                }
-                str += '{' + objs.join(', ') + '}';
-                break;
-
-              case 'function':
-                str += '(function)';
-                break;
-
-              case 'boolean':
-                str += String(value);
-                break;
-
-              default: str += value;
-            }
-            if (i != (arguments.length - 1)) str += ' ';
-          }
-          return str;
-        };
-        document.getElementById('mt-log').innerHTML += parse.apply(this, arguments) + '<br/>';
-      };
-      </script>
+      <script src="/static/js/test-helpers.js"></script>
     </head>
-    <body class="not_loaded">
-    
-      ${nav(title=title, projects=projects, current=current, previous=previous, next=next, excluded_tests=excluded_tests)}
       <div id="mt-content">
-        <div id="mt-loading">Loading scripts...</div>
+        <div id="mt-loading">Loading...</div>
 </%def>
 
 <%def name="footer()">
@@ -109,38 +24,6 @@
 </%def>
 
 <%def name="nav(title, projects=None, current=None, previous=None, next=None, view='test', excluded_tests=None)">
-  <div id="mt-nav">
-    <h1><a href="/">${title_prefix}</a></h1>
-    % if projects is not None:
-      % for project, directories in sorted(projects.items()):
-        % if not excluded_tests or project not in excluded_tests:
-          <h2>${project}</h2>
-          % for directory in sorted(directories):
-            <dl class="mt-tests">
-              % if directory['subdir'] != '.':
-                <dt>${directory['title']}</dt>
-              % endif
-              <dd>
-                <ul>
-                  % for file_path, file_title in sorted(directory['file_dict'].items(), key=lambda x: x[1].lower()):
-                    <%
-                      klass = ""
-                      if file_path == str(current) or file_path == '/' + str(current):
-                        klass = "mt-selected"
-                    %>
-                    <li class="${klass}"><span></span><a href="${file_path}">${file_title}</a></li>
-                      % if toc and klass is not "":
-                        ${print_toc(toc)}
-                      % endif
-                    % endfor
-                </ul>
-              </dd>
-            </dl>
-          % endfor
-        % endif
-      % endfor
-    % endif
-  </div>
   <div id="mt-content_header">
     <h2>${title}</h2>
     <div>
@@ -158,16 +41,4 @@
     </div>
   </div>
   <div id="mt-log-wrapper"><div id="mt-log"></div></div>
-</%def>
-
-
-<%def name="print_toc(toc)">
-  % for item in toc:
-    <% 
-      klass = ""
-      if ":" not in item:
-        klass = "toc_section"
-    %>
-    <li class="toc ${klass}"><a href="#${item}">${item}</a></li>
-  % endfor
 </%def>
