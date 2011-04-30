@@ -36,7 +36,7 @@
         % endif
         % if show_benchmarks:
           <li><a target="bottom_frame" class="mt-benchmarks minibutton" 
-            href="#"><span>Benchmarks</span></a></li>
+            href="/benchmarks/?preset=all"><span>Benchmarks</span></a></li>
         % endif
     </div>
   </body>

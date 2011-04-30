@@ -82,11 +82,10 @@ def docs_menu(request):
   )
 
 
-
-def specs(request):
+def specs(request, template="specs.mako"):
   specs = settings.MOOTOOLS_SPECS_AND_BENCHMARKS
   if request.GET.get('preset') is None:
-    return render_to_response('specs.mako', {
+    return render_to_response(template, {
           'title': settings.TITLE_PREFIX,
           'specs_packages': specs
         })
@@ -94,7 +93,7 @@ def specs(request):
     presets = request.GET.getlist('preset')
     if 'all' not in presets:
       specs = presets
-    return render_to_response('specs.mako', {
+    return render_to_response(template, {
           'title': settings.TITLE_PREFIX,
           'specs': ','.join(specs)
         })
