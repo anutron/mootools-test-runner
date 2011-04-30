@@ -6,10 +6,11 @@
 		<title>${title_prefix} - ${title}</title>
 		<link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="screen" title="no title" charset="utf-8">
 		<link rel="stylesheet" href="/static/css/tests.css" type="text/css" media="screen" title="no title" charset="utf-8">
+		<link rel="stylesheet" href="/static/css/minibuttons.css" type="text/css" media="screen" title="no title" charset="utf-8">
 	</head>
 	<body>
 		<div class="view_source">
-			${components.nav(title=title + " source", current=current, view="source")}
+			${components.nav(current=current, view="source")}
 			<div class="source">
 				<h3>Relevant sources</h3>
 				<a name="top"></a>

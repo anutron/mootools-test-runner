@@ -67,7 +67,6 @@ body.loaded #mt-loading {
 	height: 100px;
 }
 #mt-log {
-	padding-left: 200px;
 	height: 100px;
 	overflow: auto;
 }
