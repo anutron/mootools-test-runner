@@ -1,5 +1,5 @@
 *.pyc
 /depender.egg-info
 /env
-test_runner/mootools_test_runner.egg-info
+frontend_dev/mootools_test_runner.egg-info
 settings.py
