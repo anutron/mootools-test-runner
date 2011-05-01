@@ -1,4 +1,4 @@
-<%namespace name="components" file="test_components.mako" />
+<%namespace name="components" file="demo_components.mako" />
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
   <head>
