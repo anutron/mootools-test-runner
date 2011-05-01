@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 import os
 
-urlpatterns = patterns('test_runner',
+urlpatterns = patterns('frontend_dev',
     (r'^$', 'views.index'),
     (r'^bottom_frame/', 'views.bottom_frame'),
     (r'^top_nav/', 'views.top_nav'),

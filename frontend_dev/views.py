@@ -40,7 +40,7 @@ def index(request):
   )
 
 def welcome(request):
-  """ The default 'home' page for the main content frame; pulls in WELCOME.md from the test_runner. """
+  """ The default 'home' page for the main content frame; pulls in WELCOME.md from the frontend_dev app. """
   welcome_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "WELCOME.md"))
   welcome = open(welcome_file, 'rb').read()
   return render_to_response('markdown.mako', 

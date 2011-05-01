@@ -7,7 +7,7 @@ import os
 
 urlpatterns = patterns('',
     # Example:
-    # (r'^test_runner/', include('test_runner.foo.urls')),
+    # (r'^frontend_dev/', include('frontend_dev.foo.urls')),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
@@ -15,7 +15,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # (r'^admin/', include(admin.site.urls)),
-    (r'^', include('test_runner.urls')), 
+    (r'^', include('frontend_dev.urls')), 
     (r'^static/(?P<path>.*)$', 'django.views.static.serve',
       {'document_root': os.path.abspath(os.path.join(os.path.dirname(__file__), "static"))}),
     

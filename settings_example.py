@@ -35,7 +35,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'urls'
 
 INSTALLED_APPS = (
-    'test_runner',
+    'frontend_dev',
     'depender',
     'django_extensions',
     # Uncomment the next line to enable the admin:
@@ -74,7 +74,7 @@ MOOTOOLS_TEST_LOCATIONS = {
 EXCLUDED_TESTS = []
 
 MAKO_TEMPLATE_DIRS = (
-  os.path.abspath(os.path.join(os.path.dirname(__file__), "test_runner", "templates")),
+  os.path.abspath(os.path.join(os.path.dirname(__file__), "frontend_dev", "templates")),
 )
 
 MOOTOOLS_SPECS_AND_BENCHMARKS = ['More-Tests']
