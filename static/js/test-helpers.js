@@ -1,6 +1,6 @@
 var makeActions = function(tests){
 	try {
-		if (!$('actions')) new Element('dt', {'id': 'actions'}).inject($('mt-content'), 'top');
+		if (!$('actions')) new Element('dt', {'id': 'actions'}).inject(document.body, 'top');
 		tests.each(function(test, i) {
 			new Element('dt').adopt(
 				new Element('a', {

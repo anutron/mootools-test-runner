@@ -7,16 +7,14 @@
     <head>
       <title>${title_prefix} - ${title}</title>
       <link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="screen" title="no title" charset="utf-8">
+      <link rel="stylesheet" href="/static/css/shared.css" type="text/css" media="screen" title="no title" charset="utf-8">
       <link rel="stylesheet" href="/static/css/tests.css" type="text/css" media="screen" title="no title" charset="utf-8">
-      <link rel="stylesheet" href="/static/css/minibuttons.css" type="text/css" media="screen" title="no title" charset="utf-8">
       <script src="/static/js/test-helpers.js"></script>
     </head>
-      <div id="mt-content">
-        <div id="mt-loading">Loading...</div>
+      <div id="mt-loading">Loading...</div>
 </%def>
 
 <%def name="footer()">
-      </div>
       <script>
         document.body.className = 'loaded';
       </script>

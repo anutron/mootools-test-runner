@@ -1,3 +1,6 @@
+body {
+	padding: 12px;
+}
 #mt-loading {
 	position: fixed;
 	bottom: 10px;
@@ -18,17 +21,13 @@ body.loaded #mt-loading {
 	display: none;
 }
 
-#mt-content {
-	padding: 8px;
-}
-
-#mt-content h3.h3_test {
+h3.h3_test {
 	border-bottom: 1px solid #999;
 	font-weight: bold;
 	font-size: 14px;
 	margin-top: 8px;
 }
-#mt-content p {
+p {
 	margin-bottom: 4px;
 }
 #actions {

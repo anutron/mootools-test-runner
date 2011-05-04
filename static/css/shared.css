@@ -1,3 +1,4 @@
+@import url("minibuttons.css");
 body {
 	height: 100%;
 	position: absolute;
@@ -11,5 +12,3 @@ a {
 	cursor: pointer;
 	color:#009;
 }
-
-@import url("minibuttons.css");
