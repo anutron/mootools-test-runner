@@ -420,7 +420,7 @@ def sleeper(req):
   if req.REQUEST.get('sleep'):
       time.sleep(float(req.REQUEST.get('sleep')))
 
-def ajax_json_echo(req, delay=True):
+def ajax_json_echo(req, delay=False):
     " OLD: echo GET and POST via JSON "
     if delay:
         time.sleep(random.uniform(1,3))
@@ -431,14 +431,14 @@ def ajax_json_echo(req, delay=True):
         c['post_response'].update({key: value})
     return HttpResponse(simplejson.dumps(c),mimetype='application/javascript')
 
-def ajax_html_echo(req, delay=True):
+def ajax_html_echo(req, delay=False):
     " OLD: echo POST['html'] "
     if delay:
         time.sleep(random.uniform(1,3))
     t = req.POST.get('html','')
     return HttpResponse(t)
 
-def ajax_xml_echo(req, delay=True):
+def ajax_xml_echo(req, delay=False):
     " OLD: echo POST['xml'] "
     if delay:
         time.sleep(random.uniform(1,3))
