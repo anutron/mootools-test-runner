@@ -348,6 +348,8 @@ def read_asset(path):
   
   content_types = {
     "html": "text/html",
+    "xml": "text/xml",
+    "csv": "text/csv",
     "png": "image/png",
     "jpg": "image/jpg",
     "gif": "image/gif",
