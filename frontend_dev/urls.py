@@ -18,8 +18,10 @@ urlpatterns = patterns('frontend_dev',
     (r'^benchmarks/', 'views.specs', {'template':'benchmarks.mako'}),
 
     (r'^assets/(?P<path>.*)$', 'views.generic_asset'),
+    (r'^Source/(?P<path>.*)$', 'get_source_file'),
     (r'^get_source_file/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'views.get_source_file'),
     (r'^asset/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'views.asset'),
+    (r'^_assets/(?P<path>.*)$', 'asset'),
 
     (r'^depender/', include('depender.urls')),
 

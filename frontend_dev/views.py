@@ -312,15 +312,26 @@ def docs_menu(request):
 
 
 # ASSETS
-def get_source_file(request, project, path):
+def get_source_file(request, project=None, path=None):
   """ Given a project returns the contents of a file in its /Source directory. """
+  if project == None:
+    project = request.REQUEST.get('project')
+  if project == None:
+    raise Exception("The project %s is invalid." % project)
+
   if '..' in path:
     raise Exception("The path %s is invalid." % path)
   full_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", project, "Source", path))
   return read_asset(full_path)
 
-def asset(request, project, path):
+def asset(request, project=None, path=None):
   """ Given a project returns a file located in the test configuration path inside a subdirecotry called _assets. """
+  
+  if project == None:
+    project = request.REQUEST.get('project')
+  if project == None:
+    raise Exception("The project %s is invalid." % project) 
+  
   project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
   if '..' in path:
     raise Exception("The path %s is invalid." % path)
