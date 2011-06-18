@@ -38,6 +38,10 @@
           <li><a target="bottom_frame" class="mt-benchmarks minibutton" 
             href="/benchmarks/?preset=all"><span>Benchmarks</span></a></li>
         % endif
+        % if show_builder:
+          <li><a target="bottom_frame" class="mt-builder minibutton" 
+            href="/depender/"><span>Builder</span></a></li>
+        % endif
     </div>
   </body>
 </body>

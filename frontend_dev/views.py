@@ -277,6 +277,7 @@ def top_nav(request):
     'show_demos': True,
     'show_specs': True,
     'show_benchmarks': True,
+    'show_builder': True
   })
 
 def bottom_frame(request):
