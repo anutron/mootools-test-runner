@@ -173,7 +173,7 @@ def view_source(request):
   def format_code(extension, code_str):
     """Fix indent and highlight code"""
     try:
-      lexer = get_lexer_by_name('html', tabsize=2)
+      lexer = get_lexer_by_name(extension, tabsize=2)
       return highlight(code_str, lexer, HtmlFormatter())
     except KeyError:
       LOG.warn('Cannot find lexer for extension %s' % (extension,))
