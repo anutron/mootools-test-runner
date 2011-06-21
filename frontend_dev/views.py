@@ -36,11 +36,13 @@ def index(request, path=False, content_path=False):
   
   if content_path is False:
     content_path = '/welcome'
-  
-  return render_to_response('index.mako', 
+  if path is False:
+    path = request.REQUEST.get('bottom', '/bottom_frame?menu_path=/docs_menu&content_path=' + content_path)
+
+  return render_to_response('index.mako',
     {
       'title': settings.TITLE_PREFIX,
-      'bottom': path or request.REQUEST.get('bottom', '/bottom_frame?menu_path=/docs_menu&content_path=' + content_path)
+      'bottom': path 
     }
   )
 
