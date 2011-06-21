@@ -11,6 +11,8 @@ urlpatterns = patterns('frontend_dev',
     (r'^docs_menu/', 'views.docs_menu'),
 
     (r'^docs/(?P<path>.*)$', 'views.docs'),
+
+    (r'^viewdoc/(?P<path>.*)$', 'views.viewdoc'),
     (r'^source/', 'views.view_source'),
     (r'^demo/', 'views.demo'),
     (r'^specs/', 'views.specs'),

@@ -7,6 +7,6 @@
   </head>
   <frameset rows="33,*" framespacing="0" border="1" >
     <frame name="top_nav" src="/top_nav" noresize marginheight="0" marginwidth="0"/>
-    <frame name="bottom_frame" src="/bottom_frame?menu_path=/docs_menu&content_path=/welcome" noresize marginheight="0" marginwidth="0"/>
+    <frame name="bottom_frame" src="${bottom}" noresize marginheight="0" marginwidth="0"/>
   </frameset>
 </html>

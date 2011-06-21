@@ -31,13 +31,21 @@ if hasattr(settings,'EXCLUDED_TESTS'):
   excluded_tests = settings.EXCLUDED_TESTS
 
 
-def index(request):
+def index(request, path=False, content_path=False):
   """ The main frameset. """
+  
+  if content_path is False:
+    content_path = '/welcome'
+  
   return render_to_response('index.mako', 
     {
-      'title': settings.TITLE_PREFIX
+      'title': settings.TITLE_PREFIX,
+      'bottom': path or request.REQUEST.get('bottom', '/bottom_frame?menu_path=/docs_menu&content_path=' + content_path)
     }
   )
+
+def docs(request, path):
+  return index(request, content_path = '/viewdoc/' + path)
 
 def welcome(request):
   """ The default 'home' page for the main content frame; pulls in WELCOME.md from the frontend_dev app. """
@@ -227,7 +235,7 @@ def view_source(request):
 
 
 # DOCS
-def docs(request, path):
+def viewdoc(request, path):
   if path == '':
     path = "test-runner/WELCOME"
   if not re.search("md$(?i)", path):
@@ -261,7 +269,7 @@ def docs(request, path):
         'docs': files,
         'title': make_title(path.split('/')[-1]),
         'title_prefix': settings.TITLE_PREFIX,
-        'current': 'docs/' + path,
+        'current': 'viewdoc/' + path,
         'dirs': dirs,
         'toc': toc
       }
@@ -570,7 +578,7 @@ def docs_url(project, path):
   root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
   project_path = settings.DOCS[project]
   docs_path = project_path.replace(root, '')
-  return os.path.normpath('/docs/' + docs_path + path);
+  return os.path.normpath('/viewdoc/' + docs_path + path);
 
 
 
