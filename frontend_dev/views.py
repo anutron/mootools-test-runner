@@ -46,8 +46,8 @@ def index(request, path=False, content_path=False):
     }
   )
 
-def docs(request, path):
-  return index(request, content_path = '/viewdoc/' + path)
+def docs(request, project, path):
+  return index(request, content_path = '/viewdoc/' + project + '/Docs/' + path)
 
 def welcome(request):
   """ The default 'home' page for the main content frame; pulls in WELCOME.md from the frontend_dev app. """

@@ -10,7 +10,7 @@ urlpatterns = patterns('frontend_dev',
     (r'^test_menu/', 'views.test_menu'),
     (r'^docs_menu/', 'views.docs_menu'),
 
-    (r'^docs/(?P<path>.*)$', 'views.docs'),
+    (r'^docs/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'views.docs'),
 
     (r'^viewdoc/(?P<path>.*)$', 'views.viewdoc'),
     (r'^source/', 'views.view_source'),
