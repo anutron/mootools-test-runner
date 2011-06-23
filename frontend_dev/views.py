@@ -22,14 +22,11 @@ from pygments.token import Name
 import yaml
 
 
+get_path = settings.GET_PATH
+
 HTML_MATCHER = re.compile("\.(html|mako)$")
 MARKDOWN_MATCHER = re.compile("\.(markdown|md)$")
 JS_MATCHER = re.compile("\.(js)$")
-
-excluded_tests = []
-if hasattr(settings,'EXCLUDED_TESTS'):
-  excluded_tests = settings.EXCLUDED_TESTS
-
 
 def index(request, path=False, content_path=False):
   """ The main frameset. """
@@ -51,8 +48,7 @@ def docs(request, project, path):
 
 def welcome(request):
   """ The default 'home' page for the main content frame; pulls in WELCOME.md from the frontend_dev app. """
-  welcome_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "WELCOME.md"))
-  welcome = open(welcome_file, 'rb').read()
+  welcome = open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "WELCOME.md")), 'rb').read()
   return render_to_response('markdown.mako', 
     {
       'title': 'welcome',
@@ -65,51 +61,19 @@ def welcome(request):
 # DEMOS
 def demo(request):
   """ Given a project and path, renders the configured demo to the browser. """
-  project = request.REQUEST.get('project')
+  project_name = request.REQUEST.get('project')
   path = request.REQUEST.get('path')
   sleeper(request)
-  if project is None or path is None:
+  if project_name is None or path is None:
     raise Exception("You must specify a project and a path.")
   
   projects, dir_map = get_test_files()
   
-  project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
-  full_path = os.path.normpath(project_dir+path)
+  project = _get_project(project_name)
+  full_path = os.path.normpath(get_path(project['demos']['path'])+path)
   
   dir_keys = dir_map.keys()
-  try:
-    current_index = dir_keys.index(full_path)
-  except:
-    raise Exception("The path %s was not found." % path)
-  
-  prev = None
-  next = None
-  found = False
-  for proj, directories in sorted(projects.items()):
-    if next is not None:
-      break
-    for directory in sorted(directories):
-      if next is not None:
-        break
-      for file_path, file_title in sorted(directory['file_dict'].items()):
-        if next is not None:
-          break
-        if found:
-          next = file_path
-        if str(file_path.split('path=')[-1]) == str(path):
-          found = True
-        if not found:
-          prev = file_path
-  
-  if prev:
-    prev_name = make_title(prev.split('/')[-1])
-  else:
-    prev_name = None
-  if next:
-    next_name = make_title(next.split('/')[-1])
-  else:
-    next_name = None
-  
+
   test_source = open(full_path).read()
   template = 'demo.mako'
   
@@ -141,14 +105,9 @@ def demo(request):
     {
       'test': source,
       'title': make_title(path.split('/')[-1]),
-      'current': make_demo_url(project, path),
+      'current': make_demo_url(project_name, path),
       'projects': projects,
       'title_prefix': settings.TITLE_PREFIX,
-      'previous': prev,
-      'prev_name':prev_name,
-      'next': next,
-      'next_name':next_name,
-      'excluded_tests': excluded_tests,
     }
   )
 
@@ -156,20 +115,44 @@ def demo(request):
 # SPECS
 def specs(request, template="specs.mako"):
   """ Renders either a menu to choose tests or the runner with the selected tests. """
-  specs = settings.MOOTOOLS_SPECS_AND_BENCHMARKS
-  if request.GET.get('preset') is None:
+  presets = request.GET.getlist('preset')
+  if len(presets) == 0 or 'all' in presets:
+    specs = _get_all_specs_packages()
+    specs_names = []
+    for spec in specs:
+      spec_data = _read_yaml(get_path(spec))
+      specs_names.append(spec_data['name'])
+
     return render_to_response(template, {
           'title': settings.TITLE_PREFIX,
-          'specs_packages': specs
+          'specs_packages': specs_names
         })
   else:
-    presets = request.GET.getlist('preset')
-    if 'all' not in presets:
-      specs = presets
     return render_to_response(template, {
-          'title': settings.TITLE_PREFIX,
-          'specs': ','.join(specs)
-        })
+      'title': settings.TITLE_PREFIX,
+      'specs': ','.join(presets)
+    })
+
+def _get_all_specs_packages():
+  specs = []
+  for name, project in settings.PROJECTS.iteritems():
+    specs.extend(_get_specs(name))
+  return specs
+
+def _get_specs(name):
+  project = _get_project(name)
+  if project.has_key('specs'):
+    return project['specs']
+  else:
+    return []
+
+def _read_yaml(path):
+  try:
+    return yaml.load(file(path))
+  except:
+    LOG.exception("Could not parse: " + path)
+    raise
+  
 
 def moorunner(request, path):
   """ Returns an asset from the MooTools Jasmine test runner. """
@@ -189,14 +172,14 @@ def view_source(request):
       LOG.warn('Cannot find lexer for extension %s' % (extension,))
       return "<div><pre>%s</pre></div>" % (code_str,)
   
-  project = request.REQUEST.get('project')
+  project_name = request.REQUEST.get('project')
   path = request.REQUEST.get('path')
-  if project is None or path is None:
+  if project_name is None or path is None:
     raise Exception("You must specify a project and a path.")
   
   projects, dir_map = get_test_files()
-  project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
-  full_path = os.path.normpath(project_dir+path)
+  project = _get_project(project_name)
+  full_path = os.path.normpath(get_path(project['demos']['path'])+path)
   
   file_path, extension = os.path.splitext(path)
   try:
@@ -229,7 +212,7 @@ def view_source(request):
       'data': data,
       'js_data': js_data,
       'title': make_title(path.split('/')[-1]),
-      'current': make_demo_url(project, path),
+      'current': make_demo_url(project_name, path),
       'projects': projects,
       'title_prefix': settings.TITLE_PREFIX,
     }
@@ -246,7 +229,7 @@ def viewdoc(request, path):
   if '..' in path:
     raise Exception('invalid path: %s' % path)
   else:
-    md = os.path.abspath(os.path.join(settings.DOC_ROOT, path))
+    md = os.path.abspath(os.path.join(settings.DOC_ROOT, '../', path))
     if os.path.isfile(md):
       text = open(md, 'rb').read()
   if text is None:
@@ -283,11 +266,7 @@ def top_nav(request):
   """ Renders the top navigation frame. """
   return render_to_response('top_nav.mako', {
     'title': settings.TITLE_PREFIX,
-    'show_docs': True,
-    'show_demos': True,
-    'show_specs': True,
-    'show_benchmarks': True,
-    'show_builder': True
+    'buttons': settings.BUTTONS
   })
 
 def bottom_frame(request):
@@ -300,14 +279,13 @@ def bottom_frame(request):
     'content': content
   })
 
-def test_menu(request):
+def demo_menu(request):
   """ Renders a menu with a list of all available tests. """
-  projects, dir_map = get_files(settings.MOOTOOLS_TEST_LOCATIONS, HTML_MATCHER, url_maker=make_demo_url)
+  projects, dir_map = get_test_files()
   return render_to_response('left_menu.mako', 
     {
       'projects': projects,
       'title': 'Demos',
-      'excluded_tests': excluded_tests
     }
   )
 def docs_menu(request):
@@ -335,23 +313,23 @@ def get_source_file(request, project=None, path=None):
   full_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", project, "Source", path))
   return read_asset(full_path)
 
-def asset(request, project=None, path=None):
+def asset(request, project_name=None, path=None):
   """ Given a project returns a file located in the test configuration path inside a subdirecotry called _assets. """
   
-  if project == None:
-    project = request.REQUEST.get('project')
-  if project == None:
-    raise Exception("The project %s is invalid." % project) 
+  if project_name == None:
+    project_name = request.REQUEST.get('project')
+  if project_name == None:
+    raise Exception("The project %s is invalid." % project_name) 
   
-  project_dir = settings.MOOTOOLS_TEST_LOCATIONS[project]
+  project_dir = _get_project(project_name)['demos']['path']
   if '..' in path:
     raise Exception("The path %s is invalid." % path)
   full_path = os.path.normpath(project_dir + "/_assets/" + path)
   return read_asset(full_path)
 
-def assets(request, project, path):
+def assets(request, project_name, path):
   """ Deprecated """
-  return asset(request, project, path)
+  return asset(request, project_name, path)
 
 def generic_asset(request, path):
   """ A wrapper for generic paths. Reads configuration values from settings for any path and 
@@ -543,17 +521,27 @@ def get_test_files(project = None):
   """ Given a specified project, return all the HTML files in that configured path from the settings.
       If no project is specified, returns all HTML files in all the configured test directories."""
   if project:
-    return get_files_by_project(project, settings.MOOTOOLS_TEST_LOCATIONS[project],
+    return get_files_by_project(project, _get_project(project)['demos']['path'],
       matcher=HTML_MATCHER, url_maker=make_demo_url)
-  return get_files(locations=settings.MOOTOOLS_TEST_LOCATIONS, matcher=HTML_MATCHER, url_maker=make_demo_url)
+  else:
+    paths = {}
+    for name, project in settings.PROJECTS.iteritems():
+      if project.has_key('demos'):
+        paths[name] = project['demos']['path']
+  return get_files(paths, matcher=HTML_MATCHER, url_maker=make_demo_url)
 
 def get_docs_files(project=None):
   """ Gets all markdown documents in a specified project or, if none is specified, all the markdown
       files in all the specified docs directories from the settings. """
   if project:
-    return get_files_by_project(project, settings.DOCS[project],
+    return get_files_by_project(project, _get_project(project)['demos']['path'],
       matcher=MARKDOWN_MATCHER, url_maker=docs_url)
-  return get_files(locations=settings.DOCS, matcher=MARKDOWN_MATCHER, url_maker=docs_url)
+  else:
+    paths = {}
+    for name, project in settings.PROJECTS.iteritems():
+      if project.has_key('docs'):
+        paths[name] = project['docs']
+    return get_files(locations=paths, matcher=MARKDOWN_MATCHER, url_maker=docs_url)
 
 def get_js_in_dir_tree(directory):
   """ Given a path to a directory, finds all JavaScript files.
@@ -578,9 +566,23 @@ def make_title(path):
 def docs_url(project, path):
   """ Given a project and a path, return the url for the docs. """
   root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-  project_path = settings.DOCS[project]
+  project_path = get_path(_get_project(project)['docs'])
   docs_path = project_path.replace(root, '')
   return os.path.normpath('/viewdoc/' + docs_path + path);
 
+def _force_unicode(data):
+  """Encodings of the js files are unclear; force things
+  into unicode, somewhat hackily."""
+  try:
+    data = unicode(data, "utf-8")
+  except UnicodeDecodeError:
+    data = unicode(data, "latin1")
+  return data
 
-
+def _get_project(name):
+  if settings.PROJECTS.has_key(name):
+    return settings.PROJECTS[name]
+  if settings.PROJECTS.has_key(name.lower()):
+    return settings.PROJECTS[name.lower()]
+  if settings.PROJECTS.has_key(name.capitalize()):
+    return settings.PROJECTS[name.capitalize()]

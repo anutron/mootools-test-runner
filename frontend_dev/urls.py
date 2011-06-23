@@ -7,7 +7,7 @@ urlpatterns = patterns('frontend_dev',
     (r'^top_nav/', 'views.top_nav'),
 
     (r'^welcome/', 'views.welcome'),
-    (r'^test_menu/', 'views.test_menu'),
+    (r'^demo_menu/', 'views.demo_menu'),
     (r'^docs_menu/', 'views.docs_menu'),
 
     (r'^docs/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'views.docs'),
@@ -22,7 +22,7 @@ urlpatterns = patterns('frontend_dev',
     (r'^assets/(?P<path>.*)$', 'views.generic_asset'),
     (r'^Source/(?P<path>.*)$', 'get_source_file'),
     (r'^get_source_file/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'views.get_source_file'),
-    (r'^asset/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'views.asset'),
+    (r'^asset/(?P<project_name>(\w|-|_)+)/(?P<path>.*)$', 'views.asset'),
     (r'^_assets/(?P<path>.*)$', 'asset'),
 
     (r'^depender/', include('depender.urls')),

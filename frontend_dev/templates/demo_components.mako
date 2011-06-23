@@ -1,7 +1,7 @@
 <%!
   from django.core.urlresolvers import reverse
 %>
-<%def name="header(title='MooTools Test Framework', projects=False, current=None, previous=None, next=None, excluded_tests=None)">
+<%def name="header(title='MooTools Test Framework', projects=False)">
   <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
   <html>
     <head>

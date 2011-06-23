@@ -22,23 +22,23 @@
     <div id="mt-top-nav">
       <h1>${title}</h1>
       <ul>
-        % if show_docs:
+        % if 'Docs' in buttons:
           <li><a target="bottom_frame" class="mt-docs minibutton selected"
             href="/bottom_frame?menu_path=/docs_menu&content_path=/welcome"><span>Docs</span></a></li>
         % endif
-        % if show_demos:
+        % if 'Demos' in buttons:
           <li><a target="bottom_frame" class="mt-demos minibutton" 
-            href="/bottom_frame?menu_path=/test_menu&content_path=/welcome"><span>Demos</span></a></li>
+            href="/bottom_frame?menu_path=/demo_menu&content_path=/welcome"><span>Demos</span></a></li>
         % endif
-        % if show_specs:
+        % if 'Specs' in buttons:
           <li><a target="bottom_frame" class="mt-specs minibutton" 
             href="/specs"><span>Specs</span></a></li>
         % endif
-        % if show_benchmarks:
+        % if 'Benchmarks' in buttons:
           <li><a target="bottom_frame" class="mt-benchmarks minibutton" 
             href="/benchmarks/?preset=all"><span>Benchmarks</span></a></li>
         % endif
-        % if show_builder:
+        % if 'Builder' in buttons:
           <li><a target="bottom_frame" class="mt-builder minibutton" 
             href="/depender/"><span>Builder</span></a></li>
         % endif

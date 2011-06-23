@@ -1,6 +1,66 @@
-## copy this to settings.py for the default behavior
+import logging
+from os.path import abspath, join, dirname
+DOC_ROOT = dirname(__file__)
+
+TITLE_PREFIX = 'MooTools Frontend'
+
+# Set to true to re-load all JS every time. (slowish)
+DEPENDER_DEBUG = True
+
+PROJECTS = {
+  "Core": {
+    "package": "../core/package.yml",
+    "specs": [
+      "../core-specs/1.3base/package.yml",
+      "../core-specs/1.3client/package.yml"
+    ],
+    "docs": "../core/Docs",
+    "build": True
+  },
+  "More": {
+    "package": "../more/package.yml",
+    "specs": ["../more/Specs/package.yml"],
+    "demos": {
+      "path": "../more/Tests",
+      "exclude": True
+    },
+    "docs": "../more/Docs",
+    "build": True
+  },
+  "Depender": {
+    "package": "../depender/client/package.yml",
+    "build": False
+  }
+}
+
+GENERIC_ASSETS = {
+  'Assets.js.test.js': abspath(join(DOC_ROOT, "../more/Specs/assets/Assets.js.test.js")),
+  'Assets.css.test.css': abspath(join(DOC_ROOT, "../more/Specs/assets/Assets.css.test.css")),
+  'mootools.png': abspath(join(DOC_ROOT, "../more/Specs/assets/mootools.png")),
+  'cow.png': abspath(join(DOC_ROOT, "../more/Specs/assets/cow.png")),
+  'notExisting.png': abspath(join(DOC_ROOT, "../more/Specs/assets/notExisting.png")),
+  'iDontExist.png': abspath(join(DOC_ROOT, "../more/Specs/assets/iDontExist.png")),
+  'iDontExistEither.png': abspath(join(DOC_ROOT, "../more/Specs/assets/iDontExistEither.png")),
+  'jsonp.js': abspath(join(DOC_ROOT, "../more/Specs/assets/jsonp.js")),
+}
+
+# which buttons are visible at the top of the app? Comment out any you choose.
+BUTTONS = [
+  'Docs',
+  'Demos',
+  'Specs',
+  'Benchmarks',
+  'Builder'
+]
+
+#############################################################################
+###                  DO NOT EDIT BELOW THIS LINE                          ###
+#############################################################################
+
 
 # Django settings for mootools-test-runner project.
+
+logging.basicConfig(level=logging.INFO)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -38,67 +98,33 @@ INSTALLED_APPS = (
     'frontend_dev',
     'depender',
     'django_extensions',
+    'django.contrib.markup',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
 )
 
-import os
-import logging
-logging.basicConfig(level=logging.INFO)
-
-DEPENDER_PACKAGE_YMLS = (
-#locations of all your package yamls
-#in this example, they're all located in the ext directory as submodules
-#for example, ext/core/package.yml for core
-  os.path.abspath(os.path.join(os.path.dirname(__file__), "ext", "core", "package.yml")),
-  os.path.abspath(os.path.join(os.path.dirname(__file__), "ext", "more", "package.yml")),
-  os.path.abspath(os.path.join(os.path.dirname(__file__), "ext", "depender", "client", "package.yml")),
-)
-DEPENDER_SCRIPTS_JSON = []
-
-# Set to true to re-load all JS every time. (slowish)
-DEPENDER_DEBUG = True
-
-MOOTOOLS_TEST_LOCATIONS = {
-#locations of html tests that should be included in the menu
-#these are typically in the Tests directory of the repository
-#example: ext/more/Tests
-
-  "more": os.path.abspath(os.path.join(os.path.dirname(__file__), "ext", "more", "Tests"))
-}
-
-# You can exclude tests listed in the locations list above by
-# adding them to this array. This is useful when you wish to
-# reference assets in one test group from another but don't
-# want the tests listed in the menu.
-EXCLUDED_TESTS = []
+MOOTOOLS_RUNNER_PATH = abspath(join(DOC_ROOT, "../mootools-runner"))
 
 MAKO_TEMPLATE_DIRS = (
-  os.path.abspath(os.path.join(os.path.dirname(__file__), "frontend_dev", "templates")),
+  abspath(join(DOC_ROOT, "frontend_dev/templates")),
+  abspath(join(DOC_ROOT, "../depender/django/src/depender/templates")),
 )
 
-MOOTOOLS_SPECS_AND_BENCHMARKS = ['More-Tests']
+DEPENDER_PACKAGE_YMLS = []
+DEPENDER_SCRIPTS_JSON = []
+BUILDER_PACKAGES = []
 
-MOOTOOLS_RUNNER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "ext", "mootools-runner"))
+for name, project in PROJECTS.iteritems():
+  if project.has_key("package"):
+    DEPENDER_PACKAGE_YMLS.append(project['package'])
+  if project.has_key('scripts_json'):
+    DEPENDER_SCRIPTS_JSON.append(project['scripts_json'])
+  if project.has_key("specs"):
+    for spec in project["specs"]:
+      DEPENDER_PACKAGE_YMLS.append(spec)
+  if project.has_key("build") and project["build"] is True:
+    BUILDER_PACKAGES.append(name)
 
-GENERIC_ASSETS = {
-  'Assets.js.test.js': os.path.abspath(os.path.join(os.path.dirname(__file__), "../", "more", "Specs", "assets", "Assets.js.test.js")),
-  'Assets.css.test.css': os.path.abspath(os.path.join(os.path.dirname(__file__), "../", "more", "Specs", "assets", "Assets.css.test.css")),
-  'mootools.png': os.path.abspath(os.path.join(os.path.dirname(__file__), "../", "more", "Specs", "assets", "mootools.png")),
-  'cow.png': os.path.abspath(os.path.join(os.path.dirname(__file__), "../", "more", "Specs", "assets", "cow.png")),
-  'notExisting.png': os.path.abspath(os.path.join(os.path.dirname(__file__), "../", "more", "Specs", "assets", "notExisting.png")),
-  'iDontExist.png': os.path.abspath(os.path.join(os.path.dirname(__file__), "../", "more", "Specs", "assets", "iDontExist.png")),
-  'iDontExistEither.png': os.path.abspath(os.path.join(os.path.dirname(__file__), "../", "more", "Specs", "assets", "iDontExistEither.png")),
-  'jsonp.js': os.path.abspath(os.path.join(os.path.dirname(__file__), "../", "more", "Specs", "assets", "jsonp.js")),
-}
 
-# heighest level directory that markdown files can be read from
-DOC_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-# where to look for doc files
-DOCS = {
-  "Clientcide": os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "clientcide", "Docs")),
-  "Behavior": os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "behavior", "Docs")),
-  "MooTools More": os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "more", "Docs")),
-}
-
-TITLE_PREFIX = 'MooTools Tests'
+def GET_PATH(path):
+  return abspath(join(DOC_ROOT, path))
