@@ -1,7 +1,8 @@
 MooTools Test Runner
 --------------------
 
-quick setup:
+Quick Start:
+===========
 
 	$ git clone http://github.com/anutron/mootools-test-runner.git
 	$ git submodule update --init
@@ -26,6 +27,19 @@ To install virtualenv on OSX, [follow these instructions](http://www.fprimex.com
 	sudo easy_install virtualenv
 	rm ez_setup.py
 
+Quicker Start
+===========
+
+Check out the [mootools-development](http://github.com/anutron/mootools-development) repo and use that:
+
+	$ git clone git://github.com/anutron/mootools-development.git
+	$ cd mootools-development
+	$ ./go install //installs everything; takes about 3 or 4 minutes
+	$ ./go depender //checks dependencies
+	$ ./go run //runs the server
+
+Then open [http://localhost:9876/](http://localhost:9876/)
+
 Validating the Dependency map
 ==================
 
@@ -49,7 +63,7 @@ Sometimes a test will have a problem. When this happens, your browser will do on
 Debug Settings
 ==============
 
-In `settings.py` there are two debug settings. One is at the top and in the settings example is set to `Debug = True`. When this value is set the server displays an HTML response with a debug console in your browser when things fail. This includes requests for scripts that have missing dependencies. As a result, nothing happens in the browser because the `script` tag gets back an HTML response and just dies. Open the source url for the script tag to see the stack trace. Set `Debug = False` and you'll get an alert that there has been an error, though this alert is not very informative (but at least you are made aware of it).
+In `settings.py` there are two debug settings. One is `Debug = True` - when this value is set the server displays an HTML response with a debug console in your browser when things fail. This includes requests for scripts that have missing dependencies. As a result, nothing happens in the browser because the `script` tag gets back an HTML response and just dies. Open the source url for the script tag to see the stack trace. Set `Debug = False` and you'll get an alert that there has been an error, though this alert is not very informative (but at least you are made aware of it).
 
 The other debug statement is `DEPENDER_DEBUG = True` (this is default). This setting forces the Depender app to reload the JavaScript from the disk every time you request anything, which is rather slow, but useful for development. Set this to `False` to force it to cache everything in memory, which is much faster.
 
@@ -161,3 +175,20 @@ Returns a response containing whatever you specify in the `html` GET or POST val
 
 Returns a response containing whatever you specify in the `xml` GET or POST value with a `application/xml` mime type.
 
+
+Troubleshooting
+---------------
+
+Linux users may need to install python's setuptools in order for installation to work. If you get an error that ends like this:
+
+		File "/usr/lib/python2.7/dist-packages/pkg_resources.py", line 654, in require
+			needed = self.resolve(parse_requirements(requirements))
+		File "/usr/lib/python2.7/dist-packages/pkg_resources.py", line 552, in resolve
+			raise DistributionNotFound(req)
+	pkg_resources.DistributionNotFound: distribute
+
+Then you need setuptools. Simply do the following at your command line:
+
+	$ sudo apt-get install python-setuptools
+
+Then just run `./go install` again and it should work.
