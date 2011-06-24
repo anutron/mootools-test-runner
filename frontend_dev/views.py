@@ -21,6 +21,9 @@ from pygments.lexers import get_lexer_by_name
 from pygments.token import Name
 import yaml
 
+import logging
+LOG = logging.getLogger(__name__)
+
 
 get_path = settings.GET_PATH
 
@@ -502,6 +505,7 @@ def get_files_by_project(project, directory, matcher, url_maker, dirs = None, fi
   dirs[project_title] = []
   
   if include_root is not None:
+    LOG.warn("paths: %s -- %s" % (directory, include_root))
     match_files(directory + include_root, recurse=False)
   match_files(directory)
   return dirs, file_map
@@ -527,7 +531,8 @@ def get_test_files(project = None):
     paths = {}
     for name, project in settings.PROJECTS.iteritems():
       if project.has_key('demos'):
-        paths[name] = project['demos']['path']
+        if not project['demos'].has_key('exclude') or project['demos']['exclude'] is False:
+          paths[name] = get_path(project['demos']['path'])
   return get_files(paths, matcher=HTML_MATCHER, url_maker=make_demo_url)
 
 def get_docs_files(project=None):
