@@ -505,7 +505,6 @@ def get_files_by_project(project, directory, matcher, url_maker, dirs = None, fi
   dirs[project_title] = []
   
   if include_root is not None:
-    LOG.warn("paths: %s -- %s" % (directory, include_root))
     match_files(directory + include_root, recurse=False)
   match_files(directory)
   return dirs, file_map
