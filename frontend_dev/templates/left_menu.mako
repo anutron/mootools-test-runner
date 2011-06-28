@@ -29,7 +29,19 @@
           term_map[a.innerHTML] = a;
         });
         var filter = $('filter');
-        var ac = new Autocompleter.Local(filter, terms, {
+        var AC = new Class({
+          Extends: Autocompleter.Local,
+          showChoices: function(){
+            this.parent.apply(this, arguments);
+            this.choices.position({
+                relativeTo: this.element,
+                position: 'bottomCenter',
+                edge: 'topCenter',
+                offset: { x: -4 }
+            });
+          }
+        })
+        var ac = new AC(filter, terms, {
           width: 166,
           minLength: 1,
           selectMode: 'type-ahead',
@@ -63,26 +75,30 @@
         };
         
         var select = function(link){
-          var toc = $$('.toc')[0];
+          $$('.mt-selected').removeClass('mt-selected');
           var li = link.getParent('li').addClass('mt-selected');
-          if (toc) {
-            toc.dissolve().get('reveal').chain(function(){
-              toc.destroy();
-              scrollTo(li);
-            });
-          }
-          getTOC(link);
+          % if title == "Docs":
+            var toc = $$('.toc')[0];
+            if (toc) {
+              toc.dissolve().get('reveal').chain(function(){
+                toc.destroy();
+                scrollTo(li);
+              });
+            }
+            getTOC(link);
+          % else:
+            scrollTo(li);
+          % endif
         };
         
         var scroller = new Fx.Scroll(document.body);
         
-        $$('.mt-nav')[0].addEvent('click:relay(a.doc)', function(e, link){
+        $$('.mt-nav')[0].addEvent('click:relay(a.navlink)', function(e, link){
           select(link);
         });
         
         var getTOC = function(link){
-          $$('.mt-selected').removeClass('mt-selected');
-          var li = link.getParent('li').addClass('mt-selected');
+          var li = link.getParent('li');
           new Request.HTML({
             spinnerTarget: li,
             useSpinner: true,
@@ -103,8 +119,11 @@
             data: {basepath: link.get('href')}
           }).send();
         };
-        var currentTOC = $$('.toc')[0];
-        if (!currentTOC) getTOC($$('a.doc')[0]);
+        var first = $$('a.navlink')[0].addClass('mt-selected');
+        % if title == "Docs":
+          var currentTOC = $$('.toc')[0];
+          if (!currentTOC) getTOC(first);
+        % endif
       });
     </script>
   </head>
@@ -129,7 +148,7 @@
                         klass = 'mt-selected'
                     %>
                     <li class="${klass}">
-                      <span></span><a target="content" class="doc" href="${file_path}">${file_title}</a>
+                      <span></span><a target="content" class="navlink" href="${file_path}">${file_title}</a>
                       % if klass != '' and toc:
                         ${print_toc(toc, file_path)}
                       % endif
