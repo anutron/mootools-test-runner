@@ -1,12 +1,11 @@
-<%def name="print_toc(toc)">
-  % for item in toc:
-    <% 
-      klass = ""
-      if ":" not in item:
-        klass = "toc_section"
-    %>
-    <li class="toc ${klass}"><a href="#${item}">${item}</a></li>
-  % endfor
+<%def name="print_toc(toc, file_path = '')">
+  <ul class="toc">
+    % for item in toc:
+      % if ':' in item:
+        <li class="toc toc_section"><a target="content" href="${file_path}#${item}">${item.split(':')[1]}</a></li>
+      % endif
+    % endfor
+  </ul>
 </%def>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
@@ -52,11 +51,60 @@
             ac.hideChoices();
             filter.value = '';
             filter.blur.delay(20, $('filter'));
+            select(term_map[value])
           }
         });
         filter.addEvent('blur', function(){
           filter.value = '';
         });
+        
+        var scrollTo = function(li){
+          scroller.start(0, document.id(li).getPosition(document.body).y - 40);
+        };
+        
+        var select = function(link){
+          var toc = $$('.toc')[0];
+          var li = link.getParent('li').addClass('mt-selected');
+          if (toc) {
+            toc.dissolve().get('reveal').chain(function(){
+              toc.destroy();
+              scrollTo(li);
+            });
+          }
+          getTOC(link);
+        };
+        
+        var scroller = new Fx.Scroll(document.body);
+        
+        $$('.mt-nav')[0].addEvent('click:relay(a.doc)', function(e, link){
+          select(link);
+        });
+        
+        var getTOC = function(link){
+          $$('.mt-selected').removeClass('mt-selected');
+          var li = link.getParent('li').addClass('mt-selected');
+          new Request.HTML({
+            spinnerTarget: li,
+            useSpinner: true,
+            spinnerOptions: {
+              containerPosition: {
+                position: 'upperRight',
+                edge: 'centerRight',
+                offset: {
+                  y: 4
+                }
+              }
+            },
+            url:'/toc' + link.get('href').replace('viewdoc/', ''),
+            onComplete: function(responseTree, responseElements, responseHTML, responseJavaScript){
+              var toc = Elements.from(responseHTML)[0];
+              toc.hide().inject(link, 'after').reveal();
+            },
+            data: {basepath: link.get('href')}
+          }).send();
+        };
+        var currentTOC = $$('.toc')[0];
+        if (!currentTOC) getTOC($$('a.doc')[0]);
       });
     </script>
   </head>
@@ -66,26 +114,31 @@
       <div id="filter_wrapper"><input id="filter" title="Search"></div>
       % if projects is not None:
         % for project, directories in sorted(projects.items()):
-          % if not excluded_tests or project not in excluded_tests:
-            <h2>${project}</h2>
-            % for directory in sorted(directories):
-              <dl class="mt-tests">
-                % if len(directory['title'].strip()) > 0 and directory['subdir'] != '.':
-                  <dt>${directory['title']}</dt>
-                % endif
-                <dd>
-                  <ul>
-                    % for file_path, file_title in sorted(directory['file_dict'].items(), key=lambda x: x[1].lower()):
-                      <li><span></span><a target="content" href="${file_path}">${file_title}</a></li>
-                        % if toc and klass is not "":
-                          ${print_toc(toc)}
-                        % endif
-                      % endfor
-                  </ul>
-                </dd>
-              </dl>
-            % endfor
-          % endif
+          <h2>${project}</h2>
+          % for directory in sorted(directories):
+            <dl class="mt-tests">
+              % if len(directory['title'].strip()) > 0 and directory['subdir'] != '.':
+                <dt>${directory['title']}</dt>
+              % endif
+              <dd>
+                <ul>
+                  % for file_path, file_title in sorted(directory['file_dict'].items(), key=lambda x: x[1].lower()):
+                    <%
+                      klass = ''
+                      if current_project == project and current_path == file_path.split('/')[-1]:
+                        klass = 'mt-selected'
+                    %>
+                    <li class="${klass}">
+                      <span></span><a target="content" class="doc" href="${file_path}">${file_title}</a>
+                      % if klass != '' and toc:
+                        ${print_toc(toc, file_path)}
+                      % endif
+                    </li>
+                  % endfor
+                </ul>
+              </dd>
+            </dl>
+          % endfor
         % endfor
       % endif
     </div>

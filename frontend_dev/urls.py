@@ -8,11 +8,13 @@ urlpatterns = patterns('frontend_dev',
 
     (r'^welcome/', 'views.welcome'),
     (r'^demo_menu/', 'views.demo_menu'),
-    (r'^docs_menu/', 'views.docs_menu'),
+    (r'^docs_menu/$', 'views.docs_menu'),
+    (r'^docs_menu/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'views.docs_menu'),
 
     (r'^docs/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'views.docs'),
 
     (r'^viewdoc/(?P<path>.*)$', 'views.viewdoc'),
+    (r'^toc/(?P<path>.*)$', 'views.toc'),
     (r'^source/', 'views.view_source'),
     (r'^demo/', 'views.demo'),
     (r'^specs/', 'views.specs'),

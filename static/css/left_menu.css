@@ -11,7 +11,9 @@ h1 {
 	font-size: 16px;
 	font-weight: bold;
 	padding: 4px;
-	margin: 0;
+	margin: 0 0 8px 0;
+	position:relative;
+	top: 32px;
 }
 h2 {
 	font-weight: bold;
@@ -62,12 +64,15 @@ a:hover {
 }
 
 #filter_wrapper {
+	width: 100%;
 	font-size: 14px;
 	background: #D3E0ED;
 	font-weight: bold;
-	position: relative;
-	margin: 0px -8px 8px;
 	border-bottom: 1px solid #aaa;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	z-index:1;
 }
 #filter {
 	background-color: #D3E0ED;
@@ -93,6 +98,9 @@ label {
 }
 
 /* docs */
+ul {
+	position: relative;
+}
 ul li.toc {
 	margin-left: 20px;
 }
@@ -105,4 +113,14 @@ ul li.toc a {
 ul li.toc_section a {
 	font-weight: bold;
 	border-bottom: 1px solid #5B618F;
+}
+
+.spinner {
+	position: absolute;
+}
+.spinner-img {
+	background: url(../art/docs-spinner.gif) no-repeat;
+	width: 24px;
+	height: 24px;
+	margin: 0 auto;
 }

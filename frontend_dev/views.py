@@ -47,7 +47,7 @@ def index(request, path=False, content_path=False):
   )
 
 def docs(request, project, path):
-  return index(request, content_path = '/viewdoc/' + project + '/Docs/' + path)
+  return index(request, path = '/bottom_frame?menu_path=/docs_menu/' + project + '/' + path + '&content_path=/viewdoc/' + project + '/Docs/' + path)
 
 def welcome(request):
   """ The default 'home' page for the main content frame; pulls in WELCOME.md from the frontend_dev app. """
@@ -224,29 +224,12 @@ def view_source(request):
 
 # DOCS
 def viewdoc(request, path):
-  if path == '':
-    path = "test-runner/WELCOME"
-  if not re.search("md$(?i)", path):
-    path = path + '.md'
-  text = None
-  if '..' in path:
-    raise Exception('invalid path: %s' % path)
-  else:
-    md = os.path.abspath(os.path.join(settings.DOC_ROOT, '../', path))
-    if os.path.isfile(md):
-      text = open(md, 'rb').read()
-  if text is None:
-    raise Exception("The path %s was not found." % path)
-  else:
-    parsed = markdown(text)
+    parsed, path = _read_md(path)
     dirs, files = get_docs_files()
-    
-    toc = []
-    
+
     def replacer(matchobj):
       match = matchobj.group(0)
       match = re.sub('\{#|}', '', match)
-      toc.append(match)
       return '<a class="toc_anchor" name="' + match + '"></a><a href="#top" class="to_top">back to top</a>'
       
     parsed = re.sub("\{#.*?}", replacer, parsed)
@@ -259,10 +242,42 @@ def viewdoc(request, path):
         'title_prefix': settings.TITLE_PREFIX,
         'current': 'viewdoc/' + path,
         'dirs': dirs,
-        'toc': toc
+        'toc': get_toc(parsed)
       }
     )
 
+def _fix_md_extension(path):
+  if not re.search("md$(?i)", path):
+    path = path + '.md'
+  return path
+
+def _read_md(path):
+  if path == '':
+    path = "test-runner/WELCOME"
+  path = _fix_md_extension(path)
+
+  text = None
+  if '..' in path:
+    raise Exception('invalid path: %s' % path)
+  else:
+    md = os.path.abspath(os.path.join(settings.DOC_ROOT, '../', path))
+    if os.path.isfile(md):
+      text = open(md, 'rb').read()
+  if text is None:
+    raise Exception("The path %s was not found." % path)
+  else:
+    return (markdown(text), path)
+
+def get_toc(content):
+  return re.findall("\{#(.*?)}", content)
+
+def toc(request, path):
+  toc = get_toc(_read_md(path)[0])
+  basepath = request.REQUEST.get('basepath')
+  return render_to_response('toc.mako',{
+    'basepath': basepath,
+    'toc': toc
+  })
 
 #  NAVIGATION
 def top_nav(request):
@@ -291,13 +306,26 @@ def demo_menu(request):
       'title': 'Demos',
     }
   )
-def docs_menu(request):
+def docs_menu(request, project=None, path=None):
   """ Renders a menu with a list of all available docs. """
   projects, dir_map = get_docs_files()
+  
+  if project and path:
+    path = _fix_md_extension(path)
+    file_path = get_path(settings.PROJECTS[project]['docs']) + '/' + path
+    toc = get_toc(_read_md(file_path)[0])
+  else:
+    path = None
+    file_path = None
+    toc = None
+  
   return render_to_response('left_menu.mako', 
     {
       'projects': projects,
       'title': 'Docs',
+      'current_project': project,
+      'current_path': path,
+      'toc': toc
     }
   )
 
