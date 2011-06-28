@@ -101,7 +101,7 @@ ul {
 	position: relative;
 }
 ul li.toc {
-	margin-left: 20px;
+	margin-left: 0px;
 }
 ul li.toc a {
 	color: #5B618F;
@@ -111,7 +111,6 @@ ul li.toc a {
 }
 ul li.toc_section a {
 	font-weight: bold;
-	border-bottom: 1px solid #5B618F;
 }
 
 .spinner {
