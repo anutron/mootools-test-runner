@@ -10,7 +10,7 @@
 	</head>
 	<body>
 		<div class="view_source">
-			${components.nav(current=current, view="source")}
+			${components.nav(current=current, view="source", version=version)}
 			<div class="source">
 				<h3>Relevant sources</h3>
 				<a name="top"></a>

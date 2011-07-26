@@ -3,31 +3,37 @@ import os
 
 urlpatterns = patterns('frontend_dev',
     (r'^$', 'views.index'),
-    (r'^bottom_frame/', 'views.bottom_frame'),
-    (r'^top_nav/', 'views.top_nav'),
-
+    (r'^(?P<version>.*)/bottom_frame/', 'views.bottom_frame'),
+    (r'^(?P<version>.*)/top_nav/', 'views.top_nav'),
     (r'^welcome/', 'views.welcome'),
-    (r'^demo_menu/', 'views.demo_menu'),
-    (r'^docs_menu/$', 'views.docs_menu'),
-    (r'^docs_menu/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'views.docs_menu'),
 
+    (r'^depender/', include('depender.urls')),
+
+    # Menus
+    (r'^(?P<version>.*)/demo_menu/', 'views.demo_menu'),
+    (r'^(?P<version>.*)/docs_menu/$', 'views.docs_menu'),
+    (r'^(?P<version>.*)/docs_menu/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'views.docs_menu'),
+
+    # Docs
     (r'^docs/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'views.docs'),
-
-    (r'^viewdoc/(?P<path>.*)$', 'views.viewdoc'),
+    (r'^(?P<version>.*)/viewdoc/(?P<path>.*)$', 'views.viewdoc'),
     (r'^toc/(?P<path>.*)$', 'views.toc'),
-    (r'^source/', 'views.view_source'),
-    (r'^demo/', 'views.demo'),
-    (r'^specs/', 'views.specs'),
-    (r'^moorunner/(?P<path>.*)$', 'views.moorunner'),
-    (r'^benchmarks/', 'views.specs', {'template':'benchmarks.mako'}),
-
+    (r'^(?P<version>.*)/source/', 'views.view_source'),
+    # Demos
+    (r'^(?P<version>.*)/demo/', 'views.demo'),
+    (r'^^(?P<version>.*)/assets/(?P<path>.*)$', 'views.generic_asset'),
     (r'^assets/(?P<path>.*)$', 'views.generic_asset'),
     (r'^Source/(?P<path>.*)$', 'get_source_file'),
     (r'^get_source_file/(?P<project>(\w|-|_)+)/(?P<path>.*)$', 'views.get_source_file'),
+    (r'^(?P<version>.*)/asset/(?P<project_name>(\w|-|_)+)/(?P<path>.*)$', 'views.asset'),
     (r'^asset/(?P<project_name>(\w|-|_)+)/(?P<path>.*)$', 'views.asset'),
     (r'^_assets/(?P<path>.*)$', 'asset'),
 
-    (r'^depender/', include('depender.urls')),
+
+    # Specs & Benchmarks
+    (r'^(?P<version>.*)/specs/', 'views.specs'),
+    (r'^moorunner/(?P<path>.*)$', 'views.moorunner'),
+    (r'^(?P<version>.*)/benchmarks/', 'views.specs', {'template':'benchmarks.mako'}),
 
     # Echo
     url(r'^echo/js/$','views.echo_js', name='echo_js'),

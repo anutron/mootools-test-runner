@@ -111,7 +111,7 @@
                 }
               }
             },
-            url:'/toc' + link.get('href').replace('viewdoc/', ''),
+            url:'/toc' + link.get('href').split('viewdoc')[1],
             onComplete: function(responseTree, responseElements, responseHTML, responseJavaScript){
               var toc = Elements.from(responseHTML)[0];
               toc.hide().inject(link, 'after').reveal();

@@ -22,12 +22,16 @@
   </html>
 </%def>
 
-<%def name="nav(current=None, view='test')">
+<%def name="nav(current=None, view='test', version=None)">
+  <%
+    if current is not None:
+      current = current.split('demo/')[1]
+  %>
   <div id="mt-test-buttons">
     % if view == 'test' and test:
-      <a class="btn-source minibutton" href="/source/${current}"><span><span class="icon"></span>view source</span></a>
+      <a class="btn-source minibutton" href="/${version}/source/${current}"><span><span class="icon"></span>view source</span></a>
     % elif view == 'source':
-      <a class="btn-left minibutton" href="${current}"><span><span class="icon"></span>back to test</span></a>
+      <a class="btn-left minibutton" href="/${version}/demo/${current}"><span><span class="icon"></span>back to test</span></a>
     % endif
   </div>
 </%def>

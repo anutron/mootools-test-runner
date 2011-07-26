@@ -15,33 +15,42 @@
         if (links.indexOf(target) == -1) target = target.getParent('a');
         target.addClass('selected');
       });
+      $$('select')[0].addEvent('change', function(){
+        window.parent.location.href = this.getSelected()[0].get('href');
+      });
     });
     </script>
   </head>
   <body>
     <div id="mt-top-nav">
-      <h1>${title}</h1>
+      <div class="title">
+        <h1>${title}</h1>
+        <span class="version">
+          version: 
+          <select>
+            % for v in versions:
+              <option
+                href="/?version=${v}"
+                % if v == version:
+                  selected="true"
+                % endif
+              >${v}</option>
+            % endfor
+          </select>
+        </span>
+      </div>
       <ul>
-        % if 'Docs' in buttons:
-          <li><a target="bottom_frame" class="mt-docs minibutton selected"
-            href="/bottom_frame?menu_path=/docs_menu&content_path=/welcome"><span>Docs</span></a></li>
-        % endif
-        % if 'Demos' in buttons:
-          <li><a target="bottom_frame" class="mt-demos minibutton" 
-            href="/bottom_frame?menu_path=/demo_menu&content_path=/welcome"><span>Demos</span></a></li>
-        % endif
-        % if 'Specs' in buttons:
-          <li><a target="bottom_frame" class="mt-specs minibutton" 
-            href="/specs"><span>Specs</span></a></li>
-        % endif
-        % if 'Benchmarks' in buttons:
-          <li><a target="bottom_frame" class="mt-benchmarks minibutton" 
-            href="/benchmarks/?preset=all"><span>Benchmarks</span></a></li>
-        % endif
-        % if 'Builder' in buttons:
-          <li><a target="bottom_frame" class="mt-builder minibutton" 
-            href="/depender/"><span>Builder</span></a></li>
-        % endif
+        <li><a target="bottom_frame" class="mt-docs minibutton selected"
+          href="/${version}/bottom_frame?menu_path=/${version}/docs_menu&content_path=/welcome"><span>Docs</span></a></li>
+        <li><a target="bottom_frame" class="mt-demos minibutton" 
+          href="/${version}/bottom_frame?menu_path=/${version}/demo_menu&content_path=/welcome"><span>Demos</span></a></li>
+        <li><a target="bottom_frame" class="mt-specs minibutton" 
+          href="/${version}/specs"><span>Specs</span></a></li>
+        <li><a target="bottom_frame" class="mt-benchmarks minibutton" 
+          href="/${version}/benchmarks/?preset=all"><span>Benchmarks</span></a></li>
+        <li><a target="bottom_frame" class="mt-builder minibutton" 
+          href="/depender/"><span>Builder</span></a></li>
+      </ul>
     </div>
   </body>
 </body>

@@ -7,13 +7,23 @@ html, body{
 	filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr=#0069a4, EndColorStr=#004077);
 	color: #fff;
 }
+.title {
+	position: absolute;
+}
 h1 {
 	font-size: 26px;
 	font-weight: bold;
-	position: absolute;
 	margin: 2px 0 0 4px;
 	color: #fff;
 	-webkit-mask-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,1)), to(rgba(0,0,0,0.5)));
+	display: inline;
+	vertical-align: middle;
+}
+.version {
+	vertical-align: middle;
+	line-height: 12px;
+	margin-left: 10px;
+	color: #B5D2E2;
 }
 ul {
 	margin: 4px;
@@ -25,5 +35,5 @@ ul li {
 	display: inline-block;
 }
 ul li a {
-	width: 120px;
+	width: 90px;
 }
