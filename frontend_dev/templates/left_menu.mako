@@ -119,11 +119,14 @@
             data: {basepath: link.get('href')}
           }).send();
         };
-        var first = $$('a.navlink')[0].addClass('mt-selected');
-        % if title == "Docs":
-          var currentTOC = $$('.toc')[0];
-          if (!currentTOC) getTOC(first);
-        % endif
+        var navlink = $$('a.navlink')[0];
+        if (navlink) {
+          var first = navlink.addClass('mt-selected');
+          % if title == "Docs":
+            var currentTOC = $$('.toc')[0];
+            if (!currentTOC) getTOC(first);
+          % endif
+        }
       });
     </script>
   </head>
@@ -131,7 +134,7 @@
     <h1>${title}</h1>
     <div class="mt-nav">
       <div id="filter_wrapper"><input id="filter" title="Search"></div>
-      % if projects is not None:
+      % if projects is not None and len(projects) > 0:
         % for project, directories in sorted(projects.items()):
           <h2>${project}</h2>
           % for directory in sorted(directories):
@@ -159,6 +162,8 @@
             </dl>
           % endfor
         % endfor
+      % else:
+        <h2>No items found</h2>
       % endif
     </div>
   </body>

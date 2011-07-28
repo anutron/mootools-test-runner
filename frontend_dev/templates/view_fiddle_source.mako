@@ -3,37 +3,39 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 	<head>
-		<title>${title_prefix} - ${title}</title>
+		<title>${title}</title>
 		<link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="screen" title="no title" charset="utf-8">
 		<link rel="stylesheet" href="/static/css/tests.css" type="text/css" media="screen" title="no title" charset="utf-8">
 		<link rel="stylesheet" href="/static/css/minibuttons.css" type="text/css" media="screen" title="no title" charset="utf-8">
 	</head>
 	<body>
 		<div class="view_source">
-			${components.nav(current=current, view="source", version=version)}
+		<div id="mt-test-buttons">
+			<a class="btn-source minibutton" href="/${version}/${project}/fiddle/${demo_name}/demo.html"><span><span class="icon"></span>view fiddle</span></a>
+		</div>
+			
 			<div class="source">
 				<h3>Relevant sources</h3>
 				<a name="top"></a>
 				<ul>
-					<li class="tab html-tab"><a href="#html">HTML Test</a></li>
-					%for js_name in js_data.iterkeys():
-						<li class="tab">
-							<a href="#${js_name}">${js_name}</a>
-						</li>
-					%endfor
+					<li class="tab html-tab"><a href="#html">HTML</a></li>
+					<li class="tab html-tab"><a href="#css">CSS</a></li>
+					<li class="tab html-tab"><a href="#js">JS</a></li>
 				</ul>
+
 				<h3>Source for HTML</h3>
 				<a name="html"></a>
-				${data|n}
+				${html|n}
 
-				## JS data
-				%for js_name, js in js_data.iteritems():
-					<a name="${js_name}"></a>
-					<h3>Source for <code>${js_name}</code>
-						<a class="totop" href="#top">back to top</a>
-					</h3>
-					${js|n}
-				%endfor
+				<h3>Source for CSS</h3>
+				<a name="css"></a>
+				${css|n}
+
+
+				<h3>Source for JS</h3>
+				<a name="js"></a>
+				${js|n}
+
 
 			</div>
 		</div>

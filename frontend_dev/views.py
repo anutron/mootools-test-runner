@@ -29,6 +29,7 @@ get_path = settings.GET_PATH
 HTML_MATCHER = re.compile("\.(html|mako)$")
 MARKDOWN_MATCHER = re.compile("\.(markdown|md)$")
 JS_MATCHER = re.compile("\.(js)$")
+COMMENT_BLOCK = re.compile("\/\*.*\*\/", re.MULTILINE | re.DOTALL)
 
 def get_version(request):
   return request.GET.get('version', settings.DEFAULT_VERSION)
@@ -36,7 +37,7 @@ def get_version(request):
 def get_version_settings(version=None):
   if version is None:
     version = settings.DEFAULT_VERSION
-  return settings.DEPENDER_CONFIGURATIONS[version]
+  return settings.PROJECTS[version]
 
 def index(request, path=False, content_path=False):
   """ The main frameset. """
@@ -176,19 +177,20 @@ def moorunner(request, path):
   return read_asset(os.path.normpath(settings.MOOTOOLS_RUNNER_PATH + '/' + path))
 
 
+def format_code(extension, code_str):
+  """Fix indent and highlight code"""
+  try:
+    lexer = get_lexer_by_name(extension, tabsize=2)
+    return highlight(code_str, lexer, HtmlFormatter())
+  except KeyError:
+    LOG.warn('Cannot find lexer for extension %s' % (extension,))
+    return "<div><pre>%s</pre></div>" % (code_str,)
+
 # VIEW SOURCE
 def view_source(request, version):
   """ Returns the contents of a given project/path combination in the view-source viewer. Reads
       yaml files that configure addtional sources to include in the view. """
-  def format_code(extension, code_str):
-    """Fix indent and highlight code"""
-    try:
-      lexer = get_lexer_by_name(extension, tabsize=2)
-      return highlight(code_str, lexer, HtmlFormatter())
-    except KeyError:
-      LOG.warn('Cannot find lexer for extension %s' % (extension,))
-      return "<div><pre>%s</pre></div>" % (code_str,)
-  
+
   project_name = request.REQUEST.get('project')
   path = request.REQUEST.get('path')
   if project_name is None or path is None:
@@ -275,7 +277,7 @@ def _read_md(path):
   if '..' in path:
     raise Exception('invalid path: %s' % path)
   else:
-    md = os.path.abspath(os.path.join(settings.DOC_ROOT, '../', path))
+    md = os.path.abspath(os.path.join(settings.DOC_ROOT, '../../', path))
     if os.path.isfile(md):
       text = open(md, 'rb').read()
   if text is None:
@@ -329,6 +331,7 @@ def demo_menu(request, version):
       'title': 'Demos',
     }
   )
+
 def docs_menu(request, version, project=None, path=None):
   """ Renders a menu with a list of all available docs. """
   projects, dir_map = get_docs_files(version)
@@ -523,14 +526,18 @@ def ajax_html_javascript_response(req):
 
 
 # FILE CRAWLERS
-def get_files_by_project(version, project, directory, matcher, url_maker, dirs = None, file_map = None, include_root = None):
+def get_files_by_project(version, project, directory, matcher, url_maker, dirs = None, file_map = None, include_root = None, flat_name = None, get_name_from_path = None):
   """ Given a project and a direcotry, returns all files in that directory that match the specified 'matcher' regular expression. """
   if dirs is None:
     dirs = {}
   if file_map is None:
     file_map = {}
+  if get_name_from_path is None:
+    def get_name_from_path(path):
+      return path.split('/')[-1]
+
   def get_file_dict(files, directory):
-    return dict([(url_maker(version, project, file.replace(directory, '')), make_title(file.split('/')[-1])) for file in files])
+    return dict([(url_maker(version, project, file.replace(directory, '')), make_title(get_name_from_path(file))) for file in files])
   
   def match_files(current_dir, recurse=True):
     matching_files = []
@@ -549,61 +556,80 @@ def get_files_by_project(version, project, directory, matcher, url_maker, dirs =
           )
     
     if len(matching_files) > 0:
-      dirs[project_title].append(dict(
-        subdir = current_dir,
-        title = make_title(current_dir.split('/')[-1]),
-        files = matching_files,
-        file_dict = get_file_dict(matching_files, directory)
-      ))
-  
+      if flat_name:
+        if len(dirs[project_title]) == 0:
+          dirs[project_title].append(dict(
+            subdir = flat_name,
+            title = make_title(flat_name),
+            files = [],
+            file_dict = {}
+          ))
+        d = dirs[project_title][0]
+        d['files'].extend(matching_files)
+        d['file_dict'] = dict(d['file_dict'].items() + get_file_dict(matching_files, directory).items())
+      else:
+        dirs[project_title].append(dict(
+          subdir = current_dir,
+          title = make_title(current_dir.split('/')[-1]),
+          files = matching_files,
+          file_dict = get_file_dict(matching_files, directory)
+        ))
+
   project_title = make_title(project)
   dirs[project_title] = []
   
   if include_root is not None:
     match_files(directory + include_root, recurse=False)
   match_files(directory)
+  
   return dirs, file_map
   
 
-def get_files(version, locations, matcher, url_maker):
+def get_files(version, locations, matcher, url_maker, flat_name=None, get_name_from_path=None):
   """ Given a dict of locations, finds all files in those locations that match the specified 'matcher' regular expression.  """
   dirs = {}
   file_map = {}
   
   for project, directory in locations.iteritems():
-    get_files_by_project(version, project, directory, matcher, url_maker, dirs, file_map, include_root = "/..")
+    get_files_by_project(version, project, directory, matcher, url_maker, dirs, file_map, include_root = "/..", flat_name=flat_name, get_name_from_path=get_name_from_path)
     
   return dirs, file_map
 
-def get_test_files(version, project = None, attribute = 'demos', url_maker=None):
+def get_test_files(version, url_maker=None):
   """ Given a specified project, return all the HTML files in that configured path from the settings.
       If no project is specified, returns all HTML files in all the configured test directories."""
   if url_maker == None:
     url_maker = make_demo_url
 
-  if project:
-    return get_files_by_project(version, project, _get_project(version, project)[attribute]['path'],
-      matcher=HTML_MATCHER, url_maker=url_maker)
-  else:
-    paths = {}
-    for name, project in settings.PROJECTS[version].iteritems():
-      if project.has_key(attribute):
-        if not project[attribute].has_key('exclude') or project[attribute]['exclude'] is False:
-          paths[name] = get_path(project[attribute]['path'])
-  return get_files(version, paths, matcher=HTML_MATCHER, url_maker=url_maker)
+  paths = {}
+  for name, project in settings.PROJECTS[version].iteritems():
+    if project.has_key('demos'):
+      if not project['demos'].has_key('exclude') or project['demos']['exclude'] is False:
+        paths[name] = get_path(project['demos']['path'])
 
-def get_docs_files(version, project=None):
+  dirs, file_map = get_files(version, paths, matcher=HTML_MATCHER, url_maker=make_fiddle_url)
+
+  paths = {}
+  for name, project in settings.PROJECTS[version].iteritems():
+    if project.has_key('fiddles'):
+      if not project['fiddles'].has_key('exclude') or project['fiddles']['exclude'] is False:
+        paths[name] = get_path(project['fiddles']['path'])
+  def get_name_from_path(path):
+    return path.split('/')[-2]
+  dirs2, file_map2 = get_files(version, paths, matcher=HTML_MATCHER, url_maker=make_fiddle_url, flat_name='Fiddles', get_name_from_path=get_name_from_path)
+  dirs = dict(dirs.items() + dirs2.items())
+  file_map = dict(file_map.items() + file_map2.items())
+
+  return dirs, file_map
+
+def get_docs_files(version):
   """ Gets all markdown documents in a specified project or, if none is specified, all the markdown
       files in all the specified docs directories from the settings. """
-  if project:
-    return get_files_by_project(version, project, _get_project(version, project)['demos']['path'],
-      matcher=MARKDOWN_MATCHER, url_maker=docs_url)
-  else:
-    paths = {}
-    for name, project in settings.PROJECTS[version].iteritems():
-      if project.has_key('docs'):
-        paths[name] = project['docs']
-    return get_files(version, locations=paths, matcher=MARKDOWN_MATCHER, url_maker=docs_url)
+  paths = {}
+  for name, project in settings.PROJECTS[version].iteritems():
+    if project.has_key('docs'):
+      paths[name] = project['docs']
+  return get_files(version, locations=paths, matcher=MARKDOWN_MATCHER, url_maker=docs_url)
 
 def get_js_in_dir_tree(directory):
   """ Given a path to a directory, finds all JavaScript files.
@@ -627,7 +653,7 @@ def make_title(path):
 
 def docs_url(version, project, path):
   """ Given a project and a path, return the url for the docs. """
-  root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+  root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
   project_path = get_path(_get_project(version, project)['docs'])
   docs_path = project_path.replace(root, '')
   return os.path.normpath('/' + version + '/viewdoc/' + docs_path + path);
@@ -642,18 +668,67 @@ def _force_unicode(data):
   return data
 
 def _get_project(version, name):
-  if settings.PROJECTS[version].has_key(name):
-    return settings.PROJECTS[version][name]
-  if settings.PROJECTS[version].has_key(name.lower()):
-    return settings.PROJECTS[version][name.lower()]
-  if settings.PROJECTS[version].has_key(name.capitalize()):
-    return settings.PROJECTS[version][name.capitalize()]
+  version_settings = get_version_settings(version)
+  if version_settings.has_key(name):
+    return version_settings[name]
+  if version_settings.has_key(name.lower()):
+    return version_settings[name.lower()]
+  if version_settings.has_key(name.capitalize()):
+    return version_settings[name.capitalize()]
 
-
-def fiddles(request, version):
-  fiddles = get_test_files(version, attribute = 'fiddles', url_maker=make_fiddle_url)
-  raise Exception
-  
 def make_fiddle_url(version, project, path):
   """ Given a path and a project, returns a url for the demo."""
-  return '/' + version + '/fiddle/' + path
+  return '/' + version + '/' + project + '/fiddle' + path
+
+def read_file(path):
+  if not os.path.isfile(path):
+    raise Exception("The file %s was not found." % path)
+  return open(path, "rb").read()
+
+
+def fiddle(request, project, version, demo_name):
+  fiddle = _get_fiddle_details(project, version, demo_name)
+  return render_to_response('fiddle.mako',
+    {
+      'title': make_title(demo_name),
+      'demo_name': demo_name,
+      'css': fiddle['css'],
+      'html': fiddle['html'],
+      'details': fiddle['details'],
+      'package': fiddle['package_name'],
+      'version': version,
+      'project': project
+    }
+  )
+
+def fiddle_source(request, version, project, demo_name):
+  fiddle = _get_fiddle_details(project, version, demo_name)
+  return render_to_response('view_fiddle_source.mako',
+    {
+      'js': format_code('js', fiddle['js']),
+      'html': format_code('html', fiddle['html']),
+      'css': format_code('css', fiddle['css']),
+      'title': make_title(demo_name),
+      'version': version,
+      'demo_name': demo_name,
+      'project': project
+    }
+  )
+
+def fiddle_asset(request, version, project, demo_name, asset_path):
+  fiddle = proj = _get_project(version, project)
+  return read_asset(proj['fiddles']['path'] + '/' + asset_path)
+
+def _get_fiddle_details(project, version, demo_name):
+  proj = _get_project(version, project)
+  base_path = proj['fiddles']['path']
+  demo_dir = os.path.normpath(base_path)
+  package = _read_yaml(proj['fiddles']['package'])
+  raw_details = read_file(os.path.normpath(demo_dir + '/' + demo_name + '/demo.details'))
+  return {
+    'package_name': package['name'],
+    'css': read_file(os.path.normpath(demo_dir + '/' + demo_name + '/demo.css')),
+    'html': read_file(os.path.normpath(demo_dir + '/' + demo_name + '/demo.html')),
+    'js': read_file(os.path.normpath(demo_dir + '/' + demo_name + '/demo.js')),
+    'details': COMMENT_BLOCK.sub('', raw_details)
+  }

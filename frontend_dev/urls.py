@@ -29,6 +29,10 @@ urlpatterns = patterns('frontend_dev',
     (r'^asset/(?P<project_name>(\w|-|_)+)/(?P<path>.*)$', 'views.asset'),
     (r'^_assets/(?P<path>.*)$', 'asset'),
 
+    # Fiddles
+    (r'^(?P<version>.*)/(?P<project>.*)/fiddle/(?P<demo_name>.*)/demos/(?P<asset_path>.*)', 'views.fiddle_asset'),
+    (r'^(?P<version>.*)/(?P<project>.*)/fiddle/(?P<demo_name>.*)/demo.html', 'views.fiddle'),
+    (r'^(?P<version>.*)/(?P<project>.*)/fiddle_source/(?P<demo_name>.*)', 'views.fiddle_source'),
 
     # Specs & Benchmarks
     (r'^(?P<version>.*)/specs/', 'views.specs'),
