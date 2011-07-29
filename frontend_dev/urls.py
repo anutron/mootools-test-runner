@@ -19,6 +19,7 @@ urlpatterns = patterns('frontend_dev',
     (r'^(?P<version>.*)/viewdoc/(?P<path>.*)$', 'views.viewdoc'),
     (r'^toc/(?P<path>.*)$', 'views.toc'),
     (r'^(?P<version>.*)/source/', 'views.view_source'),
+
     # Demos
     (r'^(?P<version>.*)/demo/', 'views.demo'),
     (r'^^(?P<version>.*)/assets/(?P<path>.*)$', 'views.generic_asset'),

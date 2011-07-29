@@ -607,7 +607,7 @@ def get_test_files(version, url_maker=None):
       if not project['demos'].has_key('exclude') or project['demos']['exclude'] is False:
         paths[name] = get_path(project['demos']['path'])
 
-  dirs, file_map = get_files(version, paths, matcher=HTML_MATCHER, url_maker=make_fiddle_url)
+  dirs, file_map = get_files(version, paths, matcher=HTML_MATCHER, url_maker=make_demo_url)
 
   paths = {}
   for name, project in settings.PROJECTS[version].iteritems():
