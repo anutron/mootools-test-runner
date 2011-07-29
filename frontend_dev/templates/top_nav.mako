@@ -49,7 +49,7 @@
         <li><a target="bottom_frame" class="mt-benchmarks minibutton" 
           href="/${version}/benchmarks/?preset=all"><span>Benchmarks</span></a></li>
         <li><a target="bottom_frame" class="mt-builder minibutton" 
-          href="/depender/"><span>Builder</span></a></li>
+          href="/depender/?version=${version}"><span>Builder</span></a></li>
       </ul>
     </div>
   </body>
