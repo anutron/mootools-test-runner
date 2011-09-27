@@ -41,9 +41,9 @@ def get_version_settings(version=None):
 
 def index(request, path=False, content_path=False):
   """ The main frameset. """
-  
+
   version = get_version(request)
-  
+
   if content_path is False:
     content_path = '/welcome'
   if path is False:
@@ -63,7 +63,7 @@ def docs(request, project, path):
 def welcome(request):
   """ The default 'home' page for the main content frame; pulls in WELCOME.md from the frontend_dev app. """
   welcome = open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "WELCOME.md")), 'rb').read()
-  return render_to_response('markdown.mako', 
+  return render_to_response('markdown.mako',
     {
       'title': 'welcome',
       'title_prefix': settings.TITLE_PREFIX,
@@ -80,17 +80,17 @@ def demo(request, version):
   sleeper(request)
   if project_name is None or path is None:
     raise Exception("You must specify a project and a path.")
-  
+
   projects, dir_map = get_test_files(version)
-  
+
   project = _get_project(version, project_name)
   full_path = os.path.normpath(get_path(project['demos']['path'])+path)
-  
+
   dir_keys = dir_map.keys()
 
   test_source = open(full_path).read()
   template = 'demo.mako'
-  
+
   post_vars = None
   if request.POST: post_vars = request.POST.iteritems()
   if request.REQUEST.get('sleep'):
@@ -101,20 +101,21 @@ def demo(request, version):
     if request.META.get('QUERY_STRING') and len(request.META.get('QUERY_STRING')) > 0:
       request.path += "?" + request.META.get('QUERY_STRING')
     def get_asset_url(project, path):
-      return "/asset/" + project + "/" + path
+      return "/" + version + "/asset/" + project + "/" + path
     source = Template(test_source).render(
       post_vars = post_vars,
       get_var = request.REQUEST.get,
       get_list = request.REQUEST.getlist,
       request_path = request.path,
       get_request = lambda: request,
-      get_asset_url = get_asset_url
+      get_asset_url = get_asset_url,
+      version = version
     )
   else:
     source = test_source
   if 'test_runner_no_wrapper' in source or request.REQUEST.get('no_wrapper') == 'true':
     template = 'blank.mako'
-  
+
   return render_to_response(template,
     {
       'test': source,
@@ -140,18 +141,20 @@ def specs(request, version=None, template="specs.mako"):
 
     return render_to_response(template, {
           'title': settings.TITLE_PREFIX,
-          'specs_packages': specs_names
+          'specs_packages': specs_names,
+          'version': version
         })
   else:
     return render_to_response(template, {
       'title': settings.TITLE_PREFIX,
-      'specs': ','.join(presets)
+      'specs': ','.join(presets),
+      'version': version
     })
 
 def _get_all_specs_packages(version):
   if not version:
     version = settings.DEFAULT_VERSION
-  
+
   specs = []
   for name, project in settings.PROJECTS[version].iteritems():
     specs.extend(_get_specs(version, name))
@@ -170,7 +173,7 @@ def _read_yaml(path):
   except:
     LOG.exception("Could not parse: " + path)
     raise
-  
+
 
 def moorunner(request, path):
   """ Returns an asset from the MooTools Jasmine test runner. """
@@ -195,17 +198,17 @@ def view_source(request, version):
   path = request.REQUEST.get('path')
   if project_name is None or path is None:
     raise Exception("You must specify a project and a path.")
-  
+
   projects, dir_map = get_test_files(version)
   project = _get_project(version, project_name)
   full_path = os.path.normpath(get_path(project['demos']['path'])+path)
-  
+
   file_path, extension = os.path.splitext(path)
   try:
     data = format_code(extension[1:], file(full_path).read())
   except OSError, ex:
     raise Exception("Cannot read requested gallery template: %s" % (path,))
-  
+
   # Load the js references
   js_data = { }         # map of { name: js content }
   yml_file = os.path.splitext(full_path)[0] + '.yml'
@@ -225,7 +228,7 @@ def view_source(request, version):
             'Cannot locate "%s" package "%s" component' % (js_pkg, js_comp))
     except KeyError, ex:
       LOG.warn('%s does not have a "js-references" section' % (yml_file,))
-  
+
   return render_to_response('view_source.mako',
     {
       'data': data,
@@ -248,10 +251,10 @@ def viewdoc(request, version, path):
       match = matchobj.group(0)
       match = re.sub('\{#|}', '', match)
       return '<a class="toc_anchor" name="' + match + '"></a><a href="#top" class="to_top">back to top</a>'
-      
+
     parsed = re.sub("\{#.*?}", replacer, parsed)
-    
-    return render_to_response('markdown.mako', 
+
+    return render_to_response('markdown.mako',
       {
         'body': parsed,
         'docs': files,
@@ -299,12 +302,12 @@ def toc(request, path):
 #  NAVIGATION
 def top_nav(request, version):
   """ Renders the top navigation frame. """
-  
+
   version_settings = get_version_settings(version)
   versions = []
   for name, v in settings.PROJECTS.iteritems():
     versions.append(name)
-  
+
   return render_to_response('top_nav.mako', {
     'title': settings.TITLE_PREFIX,
     'settings': version_settings,
@@ -325,7 +328,7 @@ def bottom_frame(request, version):
 def demo_menu(request, version):
   """ Renders a menu with a list of all available tests. """
   projects, dir_map = get_test_files(version)
-  return render_to_response('left_menu.mako', 
+  return render_to_response('left_menu.mako',
     {
       'projects': projects,
       'title': 'Demos',
@@ -344,8 +347,8 @@ def docs_menu(request, version, project=None, path=None):
     path = None
     file_path = None
     toc = None
-  
-  return render_to_response('left_menu.mako', 
+
+  return render_to_response('left_menu.mako',
     {
       'projects': projects,
       'title': 'Docs',
@@ -378,8 +381,8 @@ def asset(request, version=None, project_name=None, path=None):
   if project_name == None:
     project_name = request.REQUEST.get('project')
   if project_name == None:
-    raise Exception("The project %s is invalid." % project_name) 
-  
+    raise Exception("The project %s is invalid." % project_name)
+
   project_dir = _get_project(version, project_name)['demos']['path']
   if '..' in path:
     raise Exception("The path %s is invalid." % path)
@@ -391,7 +394,7 @@ def assets(request, project_name, path, version=None):
   return asset(request, version, project_name, path)
 
 def generic_asset(request, path, version=None):
-  """ A wrapper for generic paths. Reads configuration values from settings for any path and 
+  """ A wrapper for generic paths. Reads configuration values from settings for any path and
       returns the configured path's contents instead. This is useful when you are running specs
       from a 3rd party (MooTools Core, for example) that expects certain files to be in a specific place. """
   if hasattr(settings,'GENERIC_ASSETS') and settings.GENERIC_ASSETS[path] is not None:
@@ -404,7 +407,7 @@ def read_asset(path):
   if not os.path.isfile(path):
     raise Exception("The file %s was not found." % path)
   data = open(path, "rb").read()
-  
+
   content_types = {
     "html": "text/html",
     "xml": "text/xml",
@@ -421,7 +424,7 @@ def read_asset(path):
   for extension, content_type in content_types.iteritems():
     if re.search(extension + "$(?i)", path):
       return HttpResponse(data, mimetype = content_type)
-  
+
   raise Exception("Unknown asset type (currently only html/png/gif/jpg/css/js are supported).")
 
 
@@ -441,7 +444,7 @@ def echo_json(req):
           simplejson.loads(req.REQUEST.get('json', '{}')))
   except Exception, e:
       response = simplejson.dumps({'error': str(e)})
-  
+
   return HttpResponse(
       response,
       mimetype='application/javascript'
@@ -458,16 +461,16 @@ def echo_jsonp(req):
   response = {}
   callback = req.REQUEST.get('callback', False)
   noresponse_keys = ['callback', 'delay']
-  
+
   for key, value in req.REQUEST.items():
       if key not in noresponse_keys:
           response.update({key: value})
-  
+
   response = simplejson.dumps(response)
-  
+
   if callback:
       response = '%s(%s);' % (callback, response)
-  
+
   return HttpResponse(response, mimetype='application/javascript')
 
 def echo_xml(req):
@@ -538,7 +541,7 @@ def get_files_by_project(version, project, directory, matcher, url_maker, dirs =
 
   def get_file_dict(files, directory):
     return dict([(url_maker(version, project, file.replace(directory, '')), make_title(get_name_from_path(file))) for file in files])
-  
+
   def match_files(current_dir, recurse=True):
     matching_files = []
     for entry in os.listdir(current_dir):
@@ -554,7 +557,7 @@ def get_files_by_project(version, project, directory, matcher, url_maker, dirs =
             subdir = current_dir,
             filename = path
           )
-    
+
     if len(matching_files) > 0:
       if flat_name:
         if len(dirs[project_title]) == 0:
@@ -577,22 +580,22 @@ def get_files_by_project(version, project, directory, matcher, url_maker, dirs =
 
   project_title = make_title(project)
   dirs[project_title] = []
-  
+
   if include_root is not None:
     match_files(directory + include_root, recurse=False)
   match_files(directory)
-  
+
   return dirs, file_map
-  
+
 
 def get_files(version, locations, matcher, url_maker, flat_name=None, get_name_from_path=None):
   """ Given a dict of locations, finds all files in those locations that match the specified 'matcher' regular expression.  """
   dirs = {}
   file_map = {}
-  
+
   for project, directory in locations.iteritems():
     get_files_by_project(version, project, directory, matcher, url_maker, dirs, file_map, include_root = "/..", flat_name=flat_name, get_name_from_path=get_name_from_path)
-    
+
   return dirs, file_map
 
 def get_test_files(version, url_maker=None):
