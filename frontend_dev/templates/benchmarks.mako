@@ -70,7 +70,7 @@
 
   </article>
 
-  <h3 style="font-size: 14px">Charted results 
+  <h3 style="font-size: 14px">Charted results
   <i style="font-size: 9px; color: #999;">(Run tests first to get charted output.)</i>
   </h3>
   <div id="chart"></div>
@@ -162,7 +162,7 @@
     chartIt(names, vals);
   });
   </script>
-  <script type="text/javascript" src="/depender/build?requireLibs=${specs}"></script>
+  <script type="text/javascript" src="/depender/build?requireLibs=${specs}&version=${version}"></script>
 % else:
   <link rel="stylesheet" href="/static/css/reset.css" type="text/css" media="screen" title="no title" charset="utf-8">
   <link rel="stylesheet" type="text/css" href="/static/css/specs.css"/>
