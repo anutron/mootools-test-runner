@@ -11,25 +11,27 @@
 
   Author: Jesse Ruderman - http://www.squarefree.com/
   Suggested on http://69.90.152.144/collab/GreaseMonkeyUserScriptRequest at 2005-04-06 17:00:13 anonymously.
-  
+
   Features:
    * Works with both mouse (shift+click) and keyboard (shift+space).
    * Use to select or deselect.
    * Use forwards or backwards.
-  
+
   Tested with:
    * Hotmail, Yahoo! Mail, Google Personalized profile creation.
    * HTML loose, HTML strict, XHTML (with the XHTML mime type).
-  
+
 */
 
 
 (function()
 {
 
+if (!document.documentElement.addEventListener) return;
+
 var currentCheckbox = null;
 
-function NSResolver(prefix) 
+function NSResolver(prefix)
 {
   if (prefix == 'html') {
     return 'http://www.w3.org/1999/xhtml';
@@ -48,7 +50,7 @@ function selectCheckboxRange(start, end)
     xpath = "//html:input[@type='checkbox']";
   else // HTML
     xpath = "//input[@type='checkbox']";
-    
+
   var checkboxes = document.evaluate(xpath, document, NSResolver, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 
   for (i = 0; (checkbox = checkboxes.snapshotItem(i)); ++i) {
@@ -101,5 +103,4 @@ function isCheckbox(elt)
 // shift was held, we have to use onkeyup and onclick instead.
 document.documentElement.addEventListener("keyup", handleChange, true);
 document.documentElement.addEventListener("click", handleChange, true);
-
 })();
