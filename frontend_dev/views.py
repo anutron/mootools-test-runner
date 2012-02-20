@@ -100,7 +100,9 @@ def demo(request, version):
     request.path = request.META.get('PATH_INFO')
     if request.META.get('QUERY_STRING') and len(request.META.get('QUERY_STRING')) > 0:
       request.path += "?" + request.META.get('QUERY_STRING')
-    def get_asset_url(project, path):
+    def get_asset_url(project, path, version=None):
+      if version is None:
+        version = settings.DEFAULT_VERSION
       return "/" + version + "/asset/" + project + "/" + path
     source = Template(test_source).render(
       post_vars = post_vars,
