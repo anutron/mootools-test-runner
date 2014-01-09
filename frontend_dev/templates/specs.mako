@@ -19,8 +19,14 @@
   <script src="/static/js/query-string.js"></script>
 
   <script type="text/javascript" charset="utf-8" src="/moorunner/Helpers/Syn.js"></script>
-  <script type="text/javascript" charset="utf-8" src="/moorunner/Helpers/simulateEvent.js"></script>
   <script type="text/javascript" charset="utf-8" src="/moorunner/Helpers/JSSpecToJasmine.js"></script>
+
+  <script src="/moorunner/Helpers/Sinon.JS/lib/sinon.js" type="text/javascript"></script>
+  <script src="/moorunner/Helpers/Sinon.JS/lib/sinon/util/event.js" type="text/javascript"></script>
+  <script src="/moorunner/Helpers/Sinon.JS/lib/sinon/util/fake_timers.js" type="text/javascript"></script>
+  <script src="/moorunner/Helpers/Sinon.JS/lib/sinon/util/timers_ie.js" type="text/javascript"></script>
+  <script src="/moorunner/Helpers/Sinon.JS/lib/sinon/util/fake_xml_http_request.js" type="text/javascript"></script>
+  <script src="/moorunner/Helpers/Sinon.JS/lib/sinon/util/xhr_ie.js" type="text/javascript"></script>
 
   <script type="text/javascript" charset="utf-8">
 
